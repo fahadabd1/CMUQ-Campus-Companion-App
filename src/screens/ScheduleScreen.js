@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Platform
+  Platform,
+  TextInput
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
@@ -18,6 +19,15 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 const ScheduleScreen = () => {
   const [schedule, setSchedule] = useState({});
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newClass, setNewClass] = useState({
+    course_name: '',
+    start_time: '',
+    end_time: '',
+    location: '',
+    instructor: '',
+    selected_day: new Date().getDay()
+  });
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -71,30 +81,41 @@ const ScheduleScreen = () => {
   };
 
   const handleAddEvent = () => {
-    Alert.prompt(
-      'Add Class',
-      'Enter class name',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Add',
-          onPress: (text) => {
-            try {
-              db.runSync(
-                `INSERT INTO schedule (course_code, course_name, location, day_of_week, start_time, end_time)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                ['COURSE', text || 'New Class', 'Room 101', selectedDay, '09:00', '10:00']
-              );
-              loadSchedule();
-            } catch (error) {
-              console.error('Error adding class:', error);
-              Alert.alert('Error', 'Failed to add class');
-            }
-          }
-        }
-      ],
-      'plain-text'
-    );
+    if (!newClass.course_name || !newClass.start_time || !newClass.end_time) {
+      Alert.alert('Error', 'Please fill in class name, start time, and end time');
+      return;
+    }
+
+    try {
+      db.runSync(
+        `INSERT INTO schedule (course_code, course_name, location, day_of_week, start_time, end_time, instructor)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'COURSE',
+          newClass.course_name,
+          newClass.location || 'TBA',
+          newClass.selected_day,
+          newClass.start_time,
+          newClass.end_time,
+          newClass.instructor || null
+        ]
+      );
+
+      Alert.alert('Success', 'Class added successfully');
+      setShowAddForm(false);
+      setNewClass({
+        course_name: '',
+        start_time: '',
+        end_time: '',
+        location: '',
+        instructor: '',
+        selected_day: new Date().getDay()
+      });
+      loadSchedule();
+    } catch (error) {
+      console.error('Error adding class:', error);
+      Alert.alert('Error', 'Failed to add class');
+    }
   };
 
   const formatTime = (timeStr) => {
@@ -110,6 +131,85 @@ const ScheduleScreen = () => {
     }
   };
 
+  if (showAddForm) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.formHeader}>
+            <Text style={styles.formTitle}>Add Class</Text>
+            <TouchableOpacity onPress={() => setShowAddForm(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.form}>
+            <Text style={styles.formLabel}>Select Day *</Text>
+            <View style={styles.daySelector}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {days.map((day, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.daySelectButton,
+                      newClass.selected_day === index && styles.daySelectButtonActive
+                    ]}
+                    onPress={() => setNewClass({ ...newClass, selected_day: index })}
+                  >
+                    <Text style={[
+                      styles.daySelectButtonText,
+                      newClass.selected_day === index && styles.daySelectButtonTextActive
+                    ]}>
+                      {dayAbbr[index]}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Class Name *"
+              value={newClass.course_name}
+              onChangeText={(text) => setNewClass({ ...newClass, course_name: text })}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Start Time (e.g., 09:00) *"
+              value={newClass.start_time}
+              onChangeText={(text) => setNewClass({ ...newClass, start_time: text })}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="End Time (e.g., 10:30) *"
+              value={newClass.end_time}
+              onChangeText={(text) => setNewClass({ ...newClass, end_time: text })}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Location (e.g., Room 101)"
+              value={newClass.location}
+              onChangeText={(text) => setNewClass({ ...newClass, location: text })}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Instructor Name"
+              value={newClass.instructor}
+              onChangeText={(text) => setNewClass({ ...newClass, instructor: text })}
+            />
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleAddEvent}>
+              <Text style={styles.submitButtonText}>Add Class</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
@@ -119,7 +219,7 @@ const ScheduleScreen = () => {
             <TouchableOpacity style={styles.importButton} onPress={handleImportICS}>
               <Text style={styles.importButtonText}>Import .ics</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
+            <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(true)}>
               <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
           </View>
@@ -153,7 +253,7 @@ const ScheduleScreen = () => {
         {(!schedule[selectedDay] || schedule[selectedDay].length === 0) ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No classes scheduled</Text>
-            <TouchableOpacity style={styles.addClassButton} onPress={handleAddEvent}>
+            <TouchableOpacity style={styles.addClassButton} onPress={() => setShowAddForm(true)}>
               <Text style={styles.addClassButtonText}>Add a class</Text>
             </TouchableOpacity>
           </View>
@@ -324,6 +424,79 @@ const styles = StyleSheet.create({
   addClassButtonText: {
     color: 'white',
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    fontWeight: '600',
+  },
+  formHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.md,
+    backgroundColor: Colors.light.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  formTitle: {
+    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors.light.text,
+  },
+  cancelText: {
+    color: Colors.light.error, // DESIGN.md: Red
+    fontSize: Typography.body.fontSize,
+  },
+  form: {
+    padding: Spacing.md,
+  },
+  formLabel: {
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    fontWeight: '600',
+    color: Colors.light.text,
+    marginBottom: 10,
+  },
+  daySelectButton: {
+    paddingHorizontal: Spacing.lg, // DESIGN.md: 20px
+    paddingVertical: 12,
+    marginHorizontal: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    backgroundColor: Colors.light.background,
+  },
+  daySelectButtonActive: {
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    borderColor: Colors.light.primary,
+  },
+  daySelectButtonText: {
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
+    fontWeight: '500',
+  },
+  daySelectButtonTextActive: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  input: {
+    backgroundColor: Colors.light.background,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
+    paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
+    paddingVertical: 12,
+    marginBottom: Spacing.md,
+    fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+  },
+  submitButton: {
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    paddingVertical: 15,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
+    alignItems: 'center',
+    height: Components.button.height, // DESIGN.md: 48px
+    justifyContent: 'center',
+    marginTop: Spacing.md,
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
   },
 });

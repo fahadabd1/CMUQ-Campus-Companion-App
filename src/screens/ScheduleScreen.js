@@ -119,16 +119,55 @@ const ScheduleScreen = () => {
   };
 
   const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+
+    // Check if it's in simple time format (HH:MM or H:MM)
+    const simpleTimeRegex = /^(\d{1,2}):(\d{2})$/;
+    const match = timeStr.match(simpleTimeRegex);
+
+    if (match) {
+      let hours = parseInt(match[1], 10);
+      const minutes = match[2];
+      let ampm;
+      let displayHours;
+
+      // Heuristic for university schedules:
+      // 8-11 are probably AM (morning classes)
+      // 12-6 are probably PM (afternoon classes)
+      if (hours >= 8 && hours <= 11) {
+        ampm = 'AM';
+        displayHours = hours;
+      } else if (hours === 12 || (hours >= 1 && hours <= 6)) {
+        ampm = 'PM';
+        displayHours = hours;
+      } else if (hours >= 13 && hours <= 18) {
+        // Convert 13-18 to 1-6 PM (24-hour format support)
+        ampm = 'PM';
+        displayHours = hours - 12;
+      } else {
+        // Default 24-hour conversion for other times (7 AM, 7+ PM, etc)
+        ampm = hours >= 12 ? 'PM' : 'AM';
+        displayHours = hours % 12 || 12;
+      }
+
+      return `${displayHours}:${minutes} ${ampm}`;
+    }
+
+    // Try to parse as a full datetime
     try {
       const date = new Date(timeStr);
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch {
-      return timeStr;
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+    } catch (e) {
+      // Fall through to return original string
     }
+
+    return timeStr;
   };
 
   if (showAddForm) {

@@ -6,16 +6,26 @@ import {
   TouchableOpacity,
   StyleSheet,
   Switch,
-  Alert
+  Alert,
+  TextInput,
+  Clipboard
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import db from '../database/database';
 import { Colors, Spacing, Typography, Components, TouchTargets, Container } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const SettingsScreen = () => {
+  const router = useRouter();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [showBugReportForm, setShowBugReportForm] = useState(false);
+  const [bugReport, setBugReport] = useState({
+    title: '',
+    description: '',
+    steps: ''
+  });
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -48,6 +58,92 @@ const SettingsScreen = () => {
   const handleExportData = () => {
     Alert.alert('Export Data', 'Data export feature coming soon');
   };
+
+  const handleContactSupport = () => {
+    const supportEmail = 'support@campuscompanion.com';
+    Clipboard.setString(supportEmail);
+    Alert.alert(
+      'Email Copied!',
+      `Support email (${supportEmail}) has been copied to your clipboard. Please paste it into your email app.`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleSubmitBugReport = () => {
+    if (!bugReport.title || !bugReport.description) {
+      Alert.alert('Error', 'Please fill in the bug title and description');
+      return;
+    }
+
+    // In a real app, this would send the bug report to a server
+    console.log('Bug Report:', bugReport);
+
+    Alert.alert(
+      'Bug Report Submitted',
+      'Thank you for helping us improve Campus Companion! We will review your report.',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            setShowBugReportForm(false);
+            setBugReport({ title: '', description: '', steps: '' });
+          }
+        }
+      ]
+    );
+  };
+
+  if (showBugReportForm) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.formHeader}>
+            <Text style={styles.formTitle}>Report a Bug</Text>
+            <TouchableOpacity onPress={() => setShowBugReportForm(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.form}>
+            <Text style={styles.formDescription}>
+              Help us improve Campus Companion by reporting bugs you encounter.
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Bug Title *"
+              value={bugReport.title}
+              onChangeText={(text) => setBugReport({ ...bugReport, title: text })}
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Bug Description *"
+              value={bugReport.description}
+              onChangeText={(text) => setBugReport({ ...bugReport, description: text })}
+              multiline
+              numberOfLines={5}
+              textAlignVertical="top"
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Steps to Reproduce (Optional)"
+              value={bugReport.steps}
+              onChangeText={(text) => setBugReport({ ...bugReport, steps: text })}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitBugReport}>
+              <Text style={styles.submitButtonText}>Submit Bug Report</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -120,12 +216,12 @@ const SettingsScreen = () => {
           <Text style={styles.infoValue}>Campus Companion</Text>
         </View>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/privacy-policy')}>
           <Text style={styles.actionButtonText}>Privacy Policy</Text>
           <Text style={styles.actionButtonIcon}>→</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/terms-of-service')}>
           <Text style={styles.actionButtonText}>Terms of Service</Text>
           <Text style={styles.actionButtonIcon}>→</Text>
         </TouchableOpacity>
@@ -134,19 +230,19 @@ const SettingsScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Support</Text>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/help-faq')}>
           <Text style={styles.actionButtonText}>Help & FAQ</Text>
           <Text style={styles.actionButtonIcon}>→</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={handleContactSupport}>
           <Text style={styles.actionButtonText}>Contact Support</Text>
-          <Text style={styles.actionButtonIcon}>→</Text>
+          <Text style={styles.actionButtonIcon}>✉️</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => setShowBugReportForm(true)}>
           <Text style={styles.actionButtonText}>Report a Bug</Text>
-          <Text style={styles.actionButtonIcon}>→</Text>
+          <Text style={styles.actionButtonIcon}>🐛</Text>
         </TouchableOpacity>
       </View>
 
@@ -278,6 +374,61 @@ const styles = StyleSheet.create({
   footerSubtext: {
     fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
     color: Colors.light.textSecondary,
+  },
+  formHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.md,
+    backgroundColor: Colors.light.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  formTitle: {
+    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors.light.text,
+  },
+  cancelText: {
+    color: Colors.light.error, // DESIGN.md: Red
+    fontSize: Typography.body.fontSize,
+  },
+  form: {
+    padding: Spacing.md,
+  },
+  formDescription: {
+    fontSize: Typography.small.fontSize,
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.lg,
+    lineHeight: Typography.small.lineHeight,
+  },
+  input: {
+    backgroundColor: Colors.light.background,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
+    paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
+    paddingVertical: 12,
+    marginBottom: Spacing.md,
+    fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+  },
+  textArea: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  submitButton: {
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    paddingVertical: 15,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
+    alignItems: 'center',
+    height: Components.button.height, // DESIGN.md: 48px
+    justifyContent: 'center',
+    marginTop: Spacing.md,
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    fontWeight: '600',
   },
 });
 

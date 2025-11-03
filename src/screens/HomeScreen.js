@@ -6,16 +6,22 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-  Image
+  Image,
+  Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import db from '../database/database';
 import { useRouter } from 'expo-router';
+import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const HomeScreen = () => {
   const [todayEvents, setTodayEvents] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   useEffect(() => {
     loadTodayEvents();
@@ -59,16 +65,18 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>University Companion</Text>
-        <Text style={styles.subtitle}>Welcome back! Here's what's happening today</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View style={styles.header}>
+          <Text style={styles.welcomeText}>University Companion</Text>
+          <Text style={styles.subtitle}>Welcome back! Here's what's happening today</Text>
+        </View>
 
       <TouchableOpacity
         style={styles.mapCard}
@@ -122,46 +130,54 @@ const HomeScreen = () => {
           <Text style={styles.viewMoreText}>View All Events →</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const getCategoryColor = (category) => {
-  const colors = {
-    'Academic': '#3B82F6',
-    'Student Life': '#10B981',
-    'Sports': '#F59E0B',
-    'Other': '#6B7280'
+  const categoryColors = {
+    'Academic': Colors.light.info,
+    'Student Life': Colors.light.success,
+    'Sports': Colors.light.warning,
+    'Other': Colors.light.textSecondary
   };
-  return colors[category] || colors['Other'];
+  return categoryColors[category] || categoryColors['Other'];
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.light.primary, // Match header color
+  },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50 (#F9FAFB)
+  },
+  scrollContent: {
+    paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
-    backgroundColor: '#3B82F6',
-    padding: 20,
-    paddingTop: 40,
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo (#3F51B5)
+    padding: Spacing.lg,
+    paddingTop: Spacing.lg, // SafeAreaView handles top spacing now
   },
   welcomeText: {
     color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
+    fontWeight: Typography.h1.fontWeight,
   },
   subtitle: {
     color: 'white',
-    fontSize: 14,
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
     marginTop: 5,
     opacity: 0.9,
   },
   mapCard: {
-    margin: 15,
-    borderRadius: 12,
+    margin: Spacing.md, // DESIGN.md: 16px
+    borderRadius: Components.map.borderRadius, // DESIGN.md: 8px
     overflow: 'hidden',
-    backgroundColor: 'white',
+    backgroundColor: Colors.light.background,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -170,40 +186,40 @@ const styles = StyleSheet.create({
   },
   mapPreviewPlaceholder: {
     width: '100%',
-    height: 150,
-    backgroundColor: '#E5E7EB',
+    height: Components.map.previewHeight, // DESIGN.md: 200px
+    backgroundColor: Colors.light.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   mapPlaceholderText: {
-    fontSize: 18,
-    color: '#6B7280',
-    fontWeight: '600',
+    fontSize: Typography.h3.fontSize, // DESIGN.md: 18px
+    color: Colors.light.textSecondary,
+    fontWeight: Typography.h3.fontWeight,
   },
   mapText: {
     padding: 12,
     textAlign: 'center',
-    color: '#3B82F6',
+    color: Colors.light.primary, // DESIGN.md: Indigo
     fontWeight: '600',
   },
   section: {
-    margin: 15,
+    margin: Spacing.md,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: Typography.h3.fontSize, // DESIGN.md: 18px
+    fontWeight: Typography.h3.fontWeight,
+    color: Colors.light.text, // DESIGN.md: Gray-900
     marginBottom: 5,
   },
   sectionSubtitle: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     marginBottom: 10,
   },
   eventCard: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 12,
+    backgroundColor: Colors.light.background,
+    padding: Components.card.padding, // DESIGN.md: 16px
+    borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -215,50 +231,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   eventTitle: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
     flex: 1,
   },
   categoryBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: Typography.caption.fontSize, // 12px
     marginLeft: 10,
   },
   categoryText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
     fontWeight: '600',
   },
   eventTime: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     marginBottom: 4,
   },
   eventLocation: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
   },
   emptyCard: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 12,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.lg,
+    borderRadius: Components.card.borderRadius,
     alignItems: 'center',
   },
   emptyText: {
-    color: '#6B7280',
-    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontSize: Typography.small.fontSize,
   },
   viewMoreButton: {
     marginTop: 10,
   },
   viewMoreText: {
-    color: '#3B82F6',
-    fontSize: 14,
+    color: Colors.light.primary, // DESIGN.md: Indigo
+    fontSize: Typography.small.fontSize,
     fontWeight: '600',
   },
 });

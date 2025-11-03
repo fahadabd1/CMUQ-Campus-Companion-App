@@ -8,11 +8,16 @@ import {
   Switch,
   Alert
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import db from '../database/database';
+import { Colors, Spacing, Typography, Components, TouchTargets, Container } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   const handleClearData = () => {
     Alert.alert(
@@ -45,10 +50,11 @@ const SettingsScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Settings</Text>
+        </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
@@ -148,36 +154,44 @@ const SettingsScreen = () => {
         <Text style={styles.footerText}>Made with ♥ for Students</Text>
         <Text style={styles.footerSubtext}>Sprint 4 - Functional Prototype</Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+  },
+  scrollContent: {
+    paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
-    backgroundColor: 'white',
-    padding: 20,
-    paddingTop: 40,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
+    fontWeight: Typography.h1.fontWeight,
+    color: Colors.light.text,
   },
   section: {
-    marginTop: 20,
-    paddingHorizontal: 15,
+    marginTop: Spacing.lg, // DESIGN.md: 20px
+    paddingHorizontal: Spacing.md,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px uppercase
     fontWeight: '600',
-    color: '#6B7280',
+    color: Colors.light.textSecondary, // DESIGN.md: Gray-600
     marginBottom: 10,
+    marginTop: Spacing.md, // DESIGN.md: 16px top margin
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -185,42 +199,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.md,
+    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   settingInfo: {
     flex: 1,
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   settingLabel: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.light.textSecondary,
   },
   actionButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.md,
+    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   actionButtonText: {
-    fontSize: 16,
-    color: '#1F2937',
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    color: Colors.light.text,
     fontWeight: '500',
   },
   actionButtonIcon: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.textSecondary,
   },
   dangerButton: {
     borderWidth: 1,
@@ -228,39 +244,40 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   dangerText: {
-    color: '#EF4444',
+    color: Colors.light.error, // DESIGN.md: Red
   },
   infoCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.md,
+    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   infoLabel: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.textSecondary,
   },
   infoValue: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize,
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
   },
   footer: {
     alignItems: 'center',
     padding: 30,
-    marginTop: 20,
+    marginTop: Spacing.lg,
   },
   footerText: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     marginBottom: 5,
   },
   footerSubtext: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
+    color: Colors.light.textSecondary,
   },
 });
 

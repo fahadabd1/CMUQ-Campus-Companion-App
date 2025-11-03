@@ -8,13 +8,18 @@ import {
   Alert,
   Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
 import db from '../database/database';
 import { parseICSFile, importSchedule } from '../utils/icsParser';
+import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const ScheduleScreen = () => {
   const [schedule, setSchedule] = useState({});
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -106,18 +111,19 @@ const ScheduleScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Schedule</Text>
-        <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.importButton} onPress={handleImportICS}>
-            <Text style={styles.importButtonText}>Import .ics</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>My Schedule</Text>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity style={styles.importButton} onPress={handleImportICS}>
+              <Text style={styles.importButtonText}>Import .ics</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
       <View style={styles.daySelector}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -141,7 +147,7 @@ const ScheduleScreen = () => {
         </ScrollView>
       </View>
 
-      <ScrollView style={styles.scheduleList}>
+      <ScrollView style={styles.scheduleList} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.dayTitle}>{days[selectedDay]}</Text>
 
         {(!schedule[selectedDay] || schedule[selectedDay].length === 0) ? (
@@ -169,46 +175,54 @@ const ScheduleScreen = () => {
           ))
         )}
       </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+  },
+  scrollContent: {
+    paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white',
+    padding: Spacing.md, // DESIGN.md: 16px
+    backgroundColor: Colors.light.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors.light.text,
   },
   headerButtons: {
     flexDirection: 'row',
     gap: 10,
   },
   importButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
   },
   importButtonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
     fontWeight: '600',
   },
   addButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: Colors.light.success, // DESIGN.md: Green
     width: 35,
     height: 35,
     borderRadius: 18,
@@ -221,23 +235,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   daySelector: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.light.background,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   dayButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg, // DESIGN.md: 20px
     paddingVertical: 10,
     marginHorizontal: 5,
     borderRadius: 20,
   },
   dayButtonActive: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
   },
   dayButtonText: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     fontWeight: '500',
   },
   dayButtonTextActive: {
@@ -245,18 +259,18 @@ const styles = StyleSheet.create({
   },
   scheduleList: {
     flex: 1,
-    padding: 15,
+    padding: Spacing.md,
   },
   dayTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 20,
+    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
+    fontWeight: Typography.h1.fontWeight,
+    color: Colors.light.text,
+    marginBottom: Spacing.lg,
   },
   classCard: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 12,
+    backgroundColor: Colors.light.background,
+    borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
     marginBottom: 10,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -266,50 +280,50 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   classIndicator: {
-    width: 4,
+    width: 4, // DESIGN.md: Duration bar 2px (using 4px for visibility)
   },
   classContent: {
     flex: 1,
-    padding: 15,
+    padding: Spacing.md, // DESIGN.md: 16px
   },
   classTime: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
+    color: Colors.light.textSecondary,
     marginBottom: 4,
   },
   className: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
     marginBottom: 4,
   },
   classLocation: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     marginBottom: 2,
   },
   classInstructor: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginBottom: 20,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.lg,
   },
   addClassButton: {
-    backgroundColor: '#3B82F6',
-    paddingHorizontal: 20,
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    paddingHorizontal: Spacing.lg,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
   },
   addClassButtonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
     fontWeight: '600',
   },
 });

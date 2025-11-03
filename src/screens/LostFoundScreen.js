@@ -9,8 +9,11 @@ import {
   TextInput,
   Alert
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import db from '../database/database';
+import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const LostFoundScreen = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -24,6 +27,8 @@ const LostFoundScreen = () => {
     contact_info: '',
     image_path: null
   });
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   useEffect(() => {
     loadItems();
@@ -139,13 +144,14 @@ const LostFoundScreen = () => {
 
   if (showAddForm) {
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.formHeader}>
-          <Text style={styles.formTitle}>Report Item</Text>
-          <TouchableOpacity onPress={() => setShowAddForm(false)}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.formHeader}>
+            <Text style={styles.formTitle}>Report Item</Text>
+            <TouchableOpacity onPress={() => setShowAddForm(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
 
         <View style={styles.form}>
           <View style={styles.typeSelector}>
@@ -209,18 +215,20 @@ const LostFoundScreen = () => {
             <Text style={styles.submitButtonText}>Post Item</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Lost & Found</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(true)}>
-          <Text style={styles.addButtonText}>Report Item</Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Lost & Found</Text>
+          <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(true)}>
+            <Text style={styles.addButtonText}>Report Item</Text>
+          </TouchableOpacity>
+        </View>
 
       <View style={styles.tabs}>
         <TouchableOpacity
@@ -249,7 +257,7 @@ const LostFoundScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.itemsList}>
+      <ScrollView style={styles.itemsList} contentContainerStyle={styles.scrollContent}>
         {items.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No items to display</Text>
@@ -281,45 +289,53 @@ const LostFoundScreen = () => {
           ))
         )}
       </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+  },
+  scrollContent: {
+    paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white',
+    padding: Spacing.md,
+    backgroundColor: Colors.light.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors.light.text,
   },
   addButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
   },
   addButtonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
     fontWeight: '600',
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: 'white',
+    backgroundColor: Colors.light.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   tab: {
     flex: 1,
@@ -328,26 +344,26 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: '#3B82F6',
+    borderBottomColor: Colors.light.primary, // DESIGN.md: Indigo with underline
   },
   tabText: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
   },
   tabTextActive: {
-    color: '#3B82F6',
+    color: Colors.light.primary, // DESIGN.md: Indigo
     fontWeight: '600',
   },
   itemsList: {
     flex: 1,
-    padding: 15,
+    padding: Spacing.md,
   },
   itemCard: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 12,
+    backgroundColor: Colors.light.background,
+    borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
     marginBottom: 10,
-    padding: 15,
+    padding: Components.card.padding, // DESIGN.md: 16px
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -357,8 +373,8 @@ const styles = StyleSheet.create({
   itemImage: {
     width: 80,
     height: 80,
-    borderRadius: 8,
-    marginRight: 15,
+    borderRadius: Components.card.borderRadius,
+    marginRight: Spacing.md,
   },
   itemContent: {
     flex: 1,
@@ -370,9 +386,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   itemName: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
     flex: 1,
   },
   typeBadge: {
@@ -389,117 +405,119 @@ const styles = StyleSheet.create({
   typeBadgeText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#6B7280',
+    color: Colors.light.textSecondary,
   },
   itemDescription: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     marginBottom: 5,
   },
   itemLocation: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
+    color: Colors.light.textSecondary,
     marginBottom: 3,
   },
   itemDate: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
+    color: Colors.light.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.textSecondary,
   },
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white',
+    padding: Spacing.md,
+    backgroundColor: Colors.light.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   formTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors.light.text,
   },
   cancelText: {
-    color: '#EF4444',
-    fontSize: 16,
+    color: Colors.light.error, // DESIGN.md: Red
+    fontSize: Typography.body.fontSize,
   },
   form: {
-    padding: 15,
+    padding: Spacing.md,
   },
   typeSelector: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
     gap: 10,
   },
   typeButton: {
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: Colors.light.border,
   },
   typeButtonActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    borderColor: Colors.light.primary,
   },
   typeButtonText: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     fontWeight: '500',
   },
   typeButtonTextActive: {
     color: 'white',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.light.background,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    paddingHorizontal: 15,
+    borderColor: Colors.light.border,
+    borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
+    paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
     paddingVertical: 12,
-    marginBottom: 15,
-    fontSize: 14,
+    marginBottom: Spacing.md,
+    fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: 'top',
   },
   photoButton: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.light.background,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 15,
+    borderColor: Colors.light.border,
+    borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
+    padding: Spacing.md,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   photoButtonText: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.textSecondary,
   },
   photoPreview: {
     width: '100%',
-    height: 200,
-    borderRadius: 8,
+    height: Components.map.previewHeight, // DESIGN.md: 200px
+    borderRadius: Components.card.borderRadius,
   },
   submitButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
     alignItems: 'center',
+    height: Components.button.height, // DESIGN.md: 48px
+    justifyContent: 'center',
   },
   submitButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
   },
 });

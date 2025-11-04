@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const webhookRoutes = require('./routes/webhookRoutes');
 const eventsRoutes = require('./routes/eventsRoutes');
+const pool = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,21 +58,57 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Initialize database tables on startup
+async function initializeDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        category VARCHAR(50) DEFAULT 'Other',
+        location VARCHAR(255),
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP,
+        source VARCHAR(50) DEFAULT 'email',
+        raw_email_data JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_events_start_time ON events(start_time);
+      CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
+    `);
+
+    console.log('✓ Database tables initialized');
+  } catch (error) {
+    console.error('Database initialization error:', error.message);
+  }
+}
+
 // Start server
-app.listen(PORT, () => {
-  console.log('╔════════════════════════════════════════════╗');
-  console.log('║  CMUQ Campus Companion API Server         ║');
-  console.log('╚════════════════════════════════════════════╝');
-  console.log('');
-  console.log(`✓ Server running on port ${PORT}`);
-  console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('');
-  console.log('📋 Available endpoints:');
-  console.log(`   → Webhook: http://localhost:${PORT}/webhook/events`);
-  console.log(`   → API: http://localhost:${PORT}/api/events`);
-  console.log('');
-  console.log('Press Ctrl+C to stop');
-  console.log('');
-});
+async function startServer() {
+  await initializeDatabase();
+
+  app.listen(PORT, () => {
+    console.log('╔════════════════════════════════════════════╗');
+    console.log('║  CMUQ Campus Companion API Server         ║');
+    console.log('╚════════════════════════════════════════════╝');
+    console.log('');
+    console.log(`✓ Server running on port ${PORT}`);
+    console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log('');
+    console.log('📋 Available endpoints:');
+    console.log(`   → Webhook: http://localhost:${PORT}/webhook/events`);
+    console.log(`   → API: http://localhost:${PORT}/api/events`);
+    console.log('');
+    console.log('Press Ctrl+C to stop');
+    console.log('');
+  });
+}
+
+startServer();
 
 module.exports = app;

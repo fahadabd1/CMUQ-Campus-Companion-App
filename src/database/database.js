@@ -15,6 +15,7 @@ export const initDatabase = () => {
         location TEXT,
         start_time TEXT NOT NULL,
         end_time TEXT,
+        source TEXT DEFAULT 'manual',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -49,6 +50,17 @@ export const initDatabase = () => {
         value TEXT NOT NULL
       );
     `);
+
+    // Migration: Add 'source' column to events table if it doesn't exist
+    try {
+      db.execSync(`ALTER TABLE events ADD COLUMN source TEXT DEFAULT 'manual';`);
+      console.log('✓ Added source column to events table');
+    } catch (error) {
+      // Column already exists or other error - this is fine
+      if (!error.message.includes('duplicate column')) {
+        console.log('Source column already exists or migration not needed');
+      }
+    }
 
     console.log('Database initialized successfully');
   } catch (error) {

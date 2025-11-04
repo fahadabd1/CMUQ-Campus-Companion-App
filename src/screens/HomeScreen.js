@@ -7,13 +7,15 @@ import {
   StyleSheet,
   RefreshControl,
   Image,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import db from '../database/database';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { eventsAPI, syncEventsToLocal } from '../services/api';
 
 const HomeScreen = () => {
   const [todayEvents, setTodayEvents] = useState([]);
@@ -108,6 +110,31 @@ const HomeScreen = () => {
     setRefreshing(false);
   }, []);
 
+  /**
+   * Navigate to event details
+   */
+  const handleEventPress = (event) => {
+    router.push({
+      pathname: '/event-details',
+      params: {
+        id: event.id,
+        title: event.title,
+        description: event.description || '',
+        category: event.category,
+        location: event.location,
+        start_time: event.start_time,
+        end_time: event.end_time || '',
+      },
+    });
+  };
+
+  /**
+   * Navigate to all events screen
+   */
+  const handleViewAllEvents = () => {
+    router.push('/all-events');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
@@ -119,7 +146,9 @@ const HomeScreen = () => {
       >
         <View style={styles.header}>
           <Text style={styles.welcomeText}>University Companion</Text>
-          <Text style={styles.subtitle}>Welcome back! Here's what's happening today</Text>
+          <Text style={styles.subtitle}>
+            Welcome back! Here's what's happening today {!isOnline && '(Offline Mode)'}
+          </Text>
         </View>
 
       <TouchableOpacity
@@ -145,7 +174,7 @@ const HomeScreen = () => {
             <TouchableOpacity
               key={event.id}
               style={styles.eventCard}
-              onPress={() => {}}
+              onPress={() => handleEventPress(event)}
             >
               <View style={styles.eventHeader}>
                 <Text style={styles.eventTitle}>{event.title}</Text>
@@ -166,10 +195,44 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tomorrow</Text>
+        <Text style={styles.sectionTitle}>Upcoming Events</Text>
+        <Text style={styles.sectionSubtitle}>Next 5 events</Text>
+
+        {upcomingEvents.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>No upcoming events</Text>
+          </View>
+        ) : (
+          upcomingEvents.map((event) => (
+            <TouchableOpacity
+              key={event.id}
+              style={styles.eventCard}
+              onPress={() => handleEventPress(event)}
+            >
+              <View style={styles.eventHeader}>
+                <Text style={styles.eventTitle}>{event.title}</Text>
+                <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(event.category) }]}>
+                  <Text style={styles.categoryText}>{event.category}</Text>
+                </View>
+              </View>
+              <Text style={styles.eventTime}>
+                {new Date(event.start_time).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })} at {new Date(event.start_time).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Text>
+              <Text style={styles.eventLocation}>📍 {event.location}</Text>
+            </TouchableOpacity>
+          ))
+        )}
+
         <TouchableOpacity
           style={styles.viewMoreButton}
-          onPress={() => {}}
+          onPress={handleViewAllEvents}
         >
           <Text style={styles.viewMoreText}>View All Events →</Text>
         </TouchableOpacity>

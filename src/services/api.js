@@ -3,12 +3,9 @@
  * Handles all backend API calls
  */
 
-// TODO: Replace with your deployed backend URL
-// For local testing: Use your computer's IP address (not localhost)
-// Find your IP: Windows (ipconfig), Mac/Linux (ifconfig)
-const API_BASE_URL = __DEV__
-  ? 'http://192.168.1.100:3000/api'  // Replace with your actual IP
-  : 'https://your-production-api.com/api';
+// Backend API URLs
+// Using Railway production URL for both dev and production
+const API_BASE_URL = 'https://cmuq-campus-companion-app-production.up.railway.app/api';
 
 /**
  * Generic fetch wrapper with error handling

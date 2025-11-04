@@ -6,13 +6,28 @@ import {
   TouchableOpacity,
   StyleSheet,
   Switch,
-  Alert
+  Alert,
+  TextInput,
+  Clipboard
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import db from '../database/database';
+import { Colors, Spacing, Typography, Components, TouchTargets, Container } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const SettingsScreen = () => {
+  const router = useRouter();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [showBugReportForm, setShowBugReportForm] = useState(false);
+  const [bugReport, setBugReport] = useState({
+    title: '',
+    description: '',
+    steps: ''
+  });
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   const handleClearData = () => {
     Alert.alert(
@@ -44,11 +59,98 @@ const SettingsScreen = () => {
     Alert.alert('Export Data', 'Data export feature coming soon');
   };
 
+  const handleContactSupport = () => {
+    const supportEmail = 'support@campuscompanion.com';
+    Clipboard.setString(supportEmail);
+    Alert.alert(
+      'Email Copied!',
+      `Support email (${supportEmail}) has been copied to your clipboard. Please paste it into your email app.`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleSubmitBugReport = () => {
+    if (!bugReport.title || !bugReport.description) {
+      Alert.alert('Error', 'Please fill in the bug title and description');
+      return;
+    }
+
+    // In a real app, this would send the bug report to a server
+    console.log('Bug Report:', bugReport);
+
+    Alert.alert(
+      'Bug Report Submitted',
+      'Thank you for helping us improve Campus Companion! We will review your report.',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            setShowBugReportForm(false);
+            setBugReport({ title: '', description: '', steps: '' });
+          }
+        }
+      ]
+    );
+  };
+
+  if (showBugReportForm) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.formHeader}>
+            <Text style={styles.formTitle}>Report a Bug</Text>
+            <TouchableOpacity onPress={() => setShowBugReportForm(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.form}>
+            <Text style={styles.formDescription}>
+              Help us improve Campus Companion by reporting bugs you encounter.
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Bug Title *"
+              value={bugReport.title}
+              onChangeText={(text) => setBugReport({ ...bugReport, title: text })}
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Bug Description *"
+              value={bugReport.description}
+              onChangeText={(text) => setBugReport({ ...bugReport, description: text })}
+              multiline
+              numberOfLines={5}
+              textAlignVertical="top"
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Steps to Reproduce (Optional)"
+              value={bugReport.steps}
+              onChangeText={(text) => setBugReport({ ...bugReport, steps: text })}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitBugReport}>
+              <Text style={styles.submitButtonText}>Submit Bug Report</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Settings</Text>
+        </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
@@ -114,12 +216,12 @@ const SettingsScreen = () => {
           <Text style={styles.infoValue}>Campus Companion</Text>
         </View>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/privacy-policy')}>
           <Text style={styles.actionButtonText}>Privacy Policy</Text>
           <Text style={styles.actionButtonIcon}>→</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/terms-of-service')}>
           <Text style={styles.actionButtonText}>Terms of Service</Text>
           <Text style={styles.actionButtonIcon}>→</Text>
         </TouchableOpacity>
@@ -128,19 +230,19 @@ const SettingsScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Support</Text>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/help-faq')}>
           <Text style={styles.actionButtonText}>Help & FAQ</Text>
           <Text style={styles.actionButtonIcon}>→</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={handleContactSupport}>
           <Text style={styles.actionButtonText}>Contact Support</Text>
-          <Text style={styles.actionButtonIcon}>→</Text>
+          <Text style={styles.actionButtonIcon}>✉️</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => setShowBugReportForm(true)}>
           <Text style={styles.actionButtonText}>Report a Bug</Text>
-          <Text style={styles.actionButtonIcon}>→</Text>
+          <Text style={styles.actionButtonIcon}>🐛</Text>
         </TouchableOpacity>
       </View>
 
@@ -148,36 +250,44 @@ const SettingsScreen = () => {
         <Text style={styles.footerText}>Made with ♥ for Students</Text>
         <Text style={styles.footerSubtext}>Sprint 4 - Functional Prototype</Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+  },
+  scrollContent: {
+    paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
-    backgroundColor: 'white',
-    padding: 20,
-    paddingTop: 40,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light.border,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
+    fontWeight: Typography.h1.fontWeight,
+    color: Colors.light.text,
   },
   section: {
-    marginTop: 20,
-    paddingHorizontal: 15,
+    marginTop: Spacing.lg, // DESIGN.md: 20px
+    paddingHorizontal: Spacing.md,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px uppercase
     fontWeight: '600',
-    color: '#6B7280',
+    color: Colors.light.textSecondary, // DESIGN.md: Gray-600
     marginBottom: 10,
+    marginTop: Spacing.md, // DESIGN.md: 16px top margin
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -185,42 +295,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.md,
+    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   settingInfo: {
     flex: 1,
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   settingLabel: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.light.textSecondary,
   },
   actionButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.md,
+    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   actionButtonText: {
-    fontSize: 16,
-    color: '#1F2937',
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    color: Colors.light.text,
     fontWeight: '500',
   },
   actionButtonIcon: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.textSecondary,
   },
   dangerButton: {
     borderWidth: 1,
@@ -228,39 +340,95 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   dangerText: {
-    color: '#EF4444',
+    color: Colors.light.error, // DESIGN.md: Red
   },
   infoCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.light.background,
+    padding: Spacing.md,
+    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   infoLabel: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.textSecondary,
   },
   infoValue: {
-    fontSize: 16,
+    fontSize: Typography.body.fontSize,
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.light.text,
   },
   footer: {
     alignItems: 'center',
     padding: 30,
-    marginTop: 20,
+    marginTop: Spacing.lg,
   },
   footerText: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    color: Colors.light.textSecondary,
     marginBottom: 5,
   },
   footerSubtext: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
+    color: Colors.light.textSecondary,
+  },
+  formHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.md,
+    backgroundColor: Colors.light.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  formTitle: {
+    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontWeight: Typography.h2.fontWeight,
+    color: Colors.light.text,
+  },
+  cancelText: {
+    color: Colors.light.error, // DESIGN.md: Red
+    fontSize: Typography.body.fontSize,
+  },
+  form: {
+    padding: Spacing.md,
+  },
+  formDescription: {
+    fontSize: Typography.small.fontSize,
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.lg,
+    lineHeight: Typography.small.lineHeight,
+  },
+  input: {
+    backgroundColor: Colors.light.background,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
+    paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
+    paddingVertical: 12,
+    marginBottom: Spacing.md,
+    fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+  },
+  textArea: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  submitButton: {
+    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    paddingVertical: 15,
+    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
+    alignItems: 'center',
+    height: Components.button.height, // DESIGN.md: 48px
+    justifyContent: 'center',
+    marginTop: Spacing.md,
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    fontWeight: '600',
   },
 });
 

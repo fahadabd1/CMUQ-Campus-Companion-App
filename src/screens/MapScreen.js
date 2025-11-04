@@ -9,7 +9,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 const { width } = Dimensions.get('window');
 
 const FLOOR_IMAGES = [
-  require('../../assets/pdf/FirstFloor.png'),
+  require('../../assets/pdf/CMU1st.jpg'),
   require('../../assets/pdf/SecondFloor.png'),
   require('../../assets/pdf/ThirdFloor.png'),
 ];

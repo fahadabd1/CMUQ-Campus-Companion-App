@@ -19,49 +19,93 @@ const HomeScreen = () => {
   const [todayEvents, setTodayEvents] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
   useEffect(() => {
-    loadTodayEvents();
-    loadUpcomingEvents();
+    loadEvents();
   }, []);
 
-  const loadTodayEvents = () => {
+  /**
+   * Load events - Try API first, fallback to local database
+   */
+  const loadEvents = async () => {
     try {
+      // Try to fetch from API
+      await loadEventsFromAPI();
+    } catch (error) {
+      console.log('API not available, loading from local database');
+      setIsOnline(false);
+      loadEventsFromLocal();
+    }
+  };
+
+  /**
+   * Fetch events from backend API
+   */
+  const loadEventsFromAPI = async () => {
+    try {
+      // Fetch today's events from API
+      const todayData = await eventsAPI.getToday();
+      setTodayEvents(todayData);
+
+      // Fetch upcoming events from API
+      const upcomingData = await eventsAPI.getUpcoming(5);
+      setUpcomingEvents(upcomingData);
+
+      // Sync events to local database for offline access
+      await syncEventsToLocal(db);
+
+      setIsOnline(true);
+    } catch (error) {
+      console.error('Error loading events from API:', error);
+      throw error; // Re-throw to trigger fallback
+    }
+  };
+
+  /**
+   * Load events from local SQLite database (offline mode)
+   */
+  const loadEventsFromLocal = () => {
+    try {
+      // Load today's events
       const today = new Date().toISOString().split('T')[0];
-      const result = db.getAllSync(
+      const todayResult = db.getAllSync(
         `SELECT * FROM events
          WHERE date(start_time) = date(?)
          ORDER BY start_time ASC`,
         [today]
       );
-      setTodayEvents(result);
-    } catch (error) {
-      console.error('Error loading today events:', error);
-    }
-  };
+      setTodayEvents(todayResult);
 
-  const loadUpcomingEvents = () => {
-    try {
-      const result = db.getAllSync(
+      // Load upcoming events
+      const upcomingResult = db.getAllSync(
         `SELECT * FROM events
          WHERE date(start_time) > date('now')
          ORDER BY start_time ASC
          LIMIT 5`
       );
-      setUpcomingEvents(result);
+      setUpcomingEvents(upcomingResult);
     } catch (error) {
-      console.error('Error loading upcoming events:', error);
+      console.error('Error loading events from local database:', error);
+      Alert.alert('Error', 'Failed to load events');
     }
   };
 
-  const onRefresh = React.useCallback(() => {
+  /**
+   * Refresh handler - Pull to refresh
+   */
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    loadTodayEvents();
-    loadUpcomingEvents();
-    setTimeout(() => setRefreshing(false), 1000);
+    try {
+      await loadEventsFromAPI();
+    } catch (error) {
+      // Fallback to local if API fails
+      loadEventsFromLocal();
+    }
+    setRefreshing(false);
   }, []);
 
   return (

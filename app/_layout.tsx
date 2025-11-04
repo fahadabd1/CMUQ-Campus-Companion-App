@@ -52,6 +52,9 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="map" options={{ headerShown: false, title: 'Campus Map' }} />
+        <Stack.Screen name="privacy-policy" options={{ headerShown: false, title: 'Privacy Policy' }} />
+        <Stack.Screen name="terms-of-service" options={{ headerShown: false, title: 'Terms of Service' }} />
+        <Stack.Screen name="help-faq" options={{ headerShown: false, title: 'Help & FAQ' }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />

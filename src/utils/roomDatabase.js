@@ -94,8 +94,6 @@ export const ROOM_DATABASE = {
   '1093': { floor: 'First Floor', image: 0, x: 65.71, y: 1.92 },
   '1094': { floor: 'First Floor', image: 0, x: 67.10, y: 1.56 },
   '1095': { floor: 'First Floor', image: 0, x: 68.50, y: 1.80 },
-  '1096': { floor: 'First Floor', image: 0, x: 58, y: 27 },
-  '1097': { floor: 'First Floor', image: 0, x: 61, y: 18 },
   '1098': { floor: 'First Floor', image: 0, x: 69.90, y: 3.97 },
   '1099': { floor: 'First Floor', image: 0, x: 71.21, y: 3.61 },
   '1100': { floor: 'First Floor', image: 0, x: 72.62, y: 3.85 },
@@ -106,13 +104,13 @@ export const ROOM_DATABASE = {
   '1106': { floor: 'First Floor', image: 0, x: 60, y: 28 },
   '1107': { floor: 'First Floor', image: 0, x: 63, y: 14 },
   '1108': { floor: 'First Floor', image: 0, x: 64, y: 16 },
-  '1112': { floor: 'First Floor', image: 0, x: 66, y: 18 },
-  '1113': { floor: 'First Floor', image: 0, x: 68, y: 17 },
-  '1115': { floor: 'First Floor', image: 0, x: 70, y: 17 },
-  '1116': { floor: 'First Floor', image: 0, x: 70, y: 20 },
+  '1112': { floor: 'First Floor', image: 0, x: 80, y: 10 },
+  '1113': { floor: 'First Floor', image: 0, x: 83, y: 10 },
+  '1115': { floor: 'First Floor', image: 0, x: 85, y: 10 },
+  '1116': { floor: 'First Floor', image: 0, x: 87, y: 10 },
   '1117': { floor: 'First Floor', image: 0, x: 86.09, y: 3.97 },
-  '1118': { floor: 'First Floor', image: 0, x: 80, y: 12 },
-  '1119': { floor: 'First Floor', image: 0, x: 83, y: 15 },
+  '1118': { floor: 'First Floor', image: 0, x: 89, y: 12 },
+  '1119': { floor: 'First Floor', image: 0, x: 90, y: 15 },
   '1121': { floor: 'First Floor', image: 0, x: 82.94, y: 15.63 },
 
   // NORTHWEST area near 1217 cluster - from CMU1st.jpg
@@ -137,7 +135,7 @@ export const ROOM_DATABASE = {
   '1140': { floor: 'First Floor', image: 0, x: 73, y: 6 }, // Yellow star (recycling)
   '1141': { floor: 'First Floor', image: 0, x: 75, y: 8 },
   '1143': { floor: 'First Floor', image: 0, x: 79, y: 10 },
-  '1144': { floor: 'First Floor', image: 0, x: 77, y: 11 },
+  '1144': { floor: 'First Floor', image: 0, x: 60, y: 47 },
   '1145': { floor: 'First Floor', image: 0, x: 65.88, y: 43.75 },
   '1146': { floor: 'First Floor', image: 0, x: 68.95, y: 50.24 },
   '1149': { floor: 'First Floor', image: 0, x: 72.27, y: 46.03 },
@@ -203,7 +201,10 @@ export const ROOM_DATABASE = {
   '1208': { floor: 'First Floor', image: 0, x: 18.02, y: 59.02 },
 
   // Additional CENTER rooms - from H2
-  '1220': { floor: 'First Floor', image: 0, x: 25, y: 48 },
+  '1220': { floor: 'First Floor', image: 0, x: 15, y: 48 },
+  '1218': { floor: 'First Floor', image: 0, x: 15, y: 44 },
+  '1142': { floor: 'First Floor', image: 0, x: 60, y: 48 },
+
   '1243': { floor: 'First Floor', image: 0, x: 14.96, y: 28.49 },
   '1221': { floor: 'First Floor', image: 0, x: 22, y: 50 },
   '1222': { floor: 'First Floor', image: 0, x: 19, y: 52 },

@@ -274,27 +274,30 @@ export const uploadAPI = {
    */
   uploadImage: async (uri) => {
     try {
-      // Convert image to base64
-      const base64 = await fetch(uri)
-        .then(res => res.blob())
-        .then(blob => {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        });
+      // Dynamically import FileSystem for React Native
+      const FileSystem = await import('expo-file-system');
+
+      // Read image as base64
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Add data URI prefix for backend
+      const dataUri = `data:image/jpeg;base64,${base64}`;
+
+      console.log('📤 Uploading image to Cloudinary...');
 
       // Upload to backend
       const response = await apiFetch('/upload/image', {
         method: 'POST',
-        body: JSON.stringify({ image: base64 }),
+        body: JSON.stringify({ image: dataUri }),
       });
+
+      console.log('✓ Image uploaded successfully:', response.data.url);
 
       return response.data.url;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('❌ Error uploading image:', error);
       throw error;
     }
   },

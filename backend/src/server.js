@@ -7,7 +7,9 @@ require('dotenv').config();
 
 const webhookRoutes = require('./routes/webhookRoutes');
 const eventsRoutes = require('./routes/eventsRoutes');
+const lostFoundRoutes = require('./routes/lostFoundRoutes');
 const pool = require('./config/database');
+const LostFound = require('./models/LostFound');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,7 +31,8 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       webhook: '/webhook',
-      events: '/api/events'
+      events: '/api/events',
+      lostFound: '/api/lost-found'
     }
   });
 });
@@ -39,6 +42,7 @@ app.use('/webhook', webhookRoutes);
 
 // API routes (for mobile app)
 app.use('/api/events', eventsRoutes);
+app.use('/api/lost-found', lostFoundRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -61,6 +65,7 @@ app.use((err, req, res, next) => {
 // Initialize database tables on startup
 async function initializeDatabase() {
   try {
+    // Initialize Events table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS events (
         id SERIAL PRIMARY KEY,
@@ -82,6 +87,9 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
     `);
 
+    // Initialize Lost & Found table
+    await LostFound.initTable();
+
     console.log('✓ Database tables initialized');
   } catch (error) {
     console.error('Database initialization error:', error.message);
@@ -102,7 +110,8 @@ async function startServer() {
     console.log('');
     console.log('📋 Available endpoints:');
     console.log(`   → Webhook: http://localhost:${PORT}/webhook/events`);
-    console.log(`   → API: http://localhost:${PORT}/api/events`);
+    console.log(`   → Events API: http://localhost:${PORT}/api/events`);
+    console.log(`   → Lost & Found API: http://localhost:${PORT}/api/lost-found`);
     console.log('');
     console.log('Press Ctrl+C to stop');
     console.log('');

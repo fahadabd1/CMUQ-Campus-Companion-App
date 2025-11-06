@@ -7,18 +7,22 @@ import {
   StyleSheet,
   Image,
   TextInput,
-  Alert
+  Alert,
+  RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import db from '../database/database';
 import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { lostFoundAPI, syncLostFoundToLocal } from '../services/api';
 
 const LostFoundScreen = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [items, setItems] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const [newItem, setNewItem] = useState({
     type: 'lost',
     item_name: '',
@@ -34,7 +38,30 @@ const LostFoundScreen = () => {
     loadItems();
   }, [activeTab]);
 
-  const loadItems = () => {
+  const loadItems = async () => {
+    try {
+      // Try to sync from API first
+      await syncFromAPI();
+    } catch (error) {
+      console.log('API not available, loading from local database');
+      setIsOnline(false);
+    }
+
+    // Load from local database (either fresh sync or cached data)
+    loadFromLocal();
+  };
+
+  const syncFromAPI = async () => {
+    try {
+      await syncLostFoundToLocal(db);
+      setIsOnline(true);
+    } catch (error) {
+      console.error('Error syncing from API:', error);
+      throw error;
+    }
+  };
+
+  const loadFromLocal = () => {
     try {
       let query = 'SELECT * FROM lost_found WHERE status = "active"';
       const params = [];
@@ -49,9 +76,15 @@ const LostFoundScreen = () => {
       const result = db.getAllSync(query, params);
       setItems(result);
     } catch (error) {
-      console.error('Error loading items:', error);
+      console.error('Error loading items from local:', error);
     }
   };
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await loadItems();
+    setRefreshing(false);
+  }, [activeTab]);
 
   const handleTakePhoto = async () => {
     Alert.alert(
@@ -101,31 +134,29 @@ const LostFoundScreen = () => {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!newItem.item_name || !newItem.description) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
 
     try {
-      const expires_at = new Date();
-      expires_at.setDate(expires_at.getDate() + 30);
+      // Post to backend API
+      const itemData = {
+        type: newItem.type,
+        item_name: newItem.item_name,
+        description: newItem.description,
+        location_lost: newItem.location_lost || '',
+        contact_info: newItem.contact_info || '',
+        image_url: newItem.image_path || null,
+        category: 'Other' // Default category
+      };
 
-      db.runSync(
-        `INSERT INTO lost_found (type, item_name, description, location_lost, contact_info, image_path, expires_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [
-          newItem.type,
-          newItem.item_name,
-          newItem.description,
-          newItem.location_lost,
-          newItem.contact_info,
-          newItem.image_path,
-          expires_at.toISOString()
-        ]
-      );
+      await lostFoundAPI.create(itemData);
 
-      Alert.alert('Success', 'Item posted successfully');
+      Alert.alert('Success', 'Item posted successfully and shared with all users!');
+
+      // Reset form
       setShowAddForm(false);
       setNewItem({
         type: 'lost',
@@ -135,10 +166,12 @@ const LostFoundScreen = () => {
         contact_info: '',
         image_path: null
       });
-      loadItems();
+
+      // Reload items from API
+      await loadItems();
     } catch (error) {
       console.error('Error posting item:', error);
-      Alert.alert('Error', 'Failed to post item');
+      Alert.alert('Error', 'Failed to post item. Please try again.');
     }
   };
 
@@ -257,7 +290,13 @@ const LostFoundScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.itemsList} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.itemsList}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {items.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No items to display</Text>

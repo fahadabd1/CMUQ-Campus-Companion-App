@@ -224,8 +224,10 @@ export const ROOM_DATABASE = {
   '1128': { floor: 'First Floor', image: 0, x: 89, y: 32 },
   '1129': { floor: 'First Floor', image: 0, x: 85, y: 40 },
   '1131': { floor: 'First Floor', image: 0, x: 85.65, y: 25.84 },
-  '1138': { floor: 'First Floor', image: 0, x: 88, y: 45 },
-  '1139': { floor: 'First Floor', image: 0, x: 86, y: 48 },
+  '1138': { floor: 'First Floor', image: 0, x: 55, y: 45 },
+  '1139': { floor: 'First Floor', image: 0, x: 58, y: 48 },
+  '1135': { floor: 'First Floor', image: 0, x: 37, y: 37 },
+  
 
   // ===== SECOND FLOOR =====
   '2001': { floor: 'Second Floor', image: 1, x: 18.84, y: 4.35 },

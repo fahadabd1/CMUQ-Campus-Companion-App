@@ -124,13 +124,14 @@ exports.receiveEvent = async (req, res) => {
 /**
  * Parse date and time strings into Date object
  * Handles formats like: "November 15, 2025" and "3:00 PM - 5:00 PM"
+ * Times are assumed to be in Gulf Standard Time (Qatar, UTC+3)
  */
 function parseDateAndTime(dateStr, timeStr) {
   // Extract start time from range (e.g., "3:00 PM" from "3:00 PM - 5:00 PM")
   const startTimeMatch = timeStr.match(/^(.*?)(?:\s*-|\s*to)/i);
   const startTime = startTimeMatch ? startTimeMatch[1].trim() : timeStr.trim();
 
-  const dateTimeStr = `${dateStr} ${startTime}`;
+  const dateTimeStr = `${dateStr} ${startTime} GMT+0300`;
   return new Date(dateTimeStr);
 }
 
@@ -142,7 +143,7 @@ function parseEndTime(dateStr, timeStr) {
   const endTimeMatch = timeStr.match(/(?:-|to)\s*(.+)$/i);
   if (endTimeMatch) {
     const endTime = endTimeMatch[1].trim();
-    const dateTimeStr = `${dateStr} ${endTime}`;
+    const dateTimeStr = `${dateStr} ${endTime} GMT+0300`;
     return new Date(dateTimeStr);
   }
 

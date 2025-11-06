@@ -1,50 +1,69 @@
-# Welcome to your Expo app 👋
+# Campus Companion App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Quick Start Guide - How to use
 
-## Get started
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- Expo CLI (optional, included in project)
+- iOS Simulator (for Mac) or Android Emulator
 
-1. Install dependencies
+### Installation
 
+1. **Install Dependencies**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. **Start Development Server**
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+3. **Run on Platform**
+   - Press `a` for Android
+   - Press `i` for iOS (Mac only)
+   - Press `w` for Web
+   - Scan QR code with Expo Go app on your phone
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Availabe features in the app
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 1. Home Screen
+-  View today's events
+-  Check upcoming events
+-  Tap map card to navigate to campus map
+-  Pull down to refresh
 
-## Get a fresh project
 
-When you're ready, run:
+### 2. Schedule Screen
+-  Navigate through days using day selector
+-  Tap "Import .ics" to import calendar file
+-  Tap "+" to add a manual class entry
+-  View class details (time, location)
 
-```bash
-npm run reset-project
-```
+**To test ICS import:**
+1. Get an .ics file from your calendar app (Google Calendar, Outlook, etc.)
+2. On mobile: Save the .ics file to your device
+3. Tap "Import .ics" button
+4. Select the .ics file
+5. Schedule will populate automatically
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 3. Lost & Found Screen
+-  Switch between All/Lost/Found tabs
+-  Tap "Report Item" to add new entry
+-  Choose Lost or Found item type
+-  Fill in item details
+-  Tap "Add Photo" to take photo or choose from gallery
+- Submit to add it to the list of items
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+### 4. Map Screen
+-  View building directory
+-  Search for rooms
+-  Rooms are highlighted if found, else notify
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 5. Settings Screen
+-  Toggle notifications
+-  Toggle dark mode
+-  Clear all data (with confirmation)
+-  How to use the app

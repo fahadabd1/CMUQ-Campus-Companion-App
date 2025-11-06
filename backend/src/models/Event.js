@@ -34,12 +34,12 @@ class Event {
   }
 
   /**
-   * Get all upcoming events (from today onwards)
+   * Get all upcoming events (after today - tomorrow onwards)
    */
   static async getUpcoming(limit = 50) {
     const query = `
       SELECT * FROM events
-      WHERE start_time >= NOW()
+      WHERE DATE(start_time) > CURRENT_DATE
       ORDER BY start_time ASC
       LIMIT $1;
     `;

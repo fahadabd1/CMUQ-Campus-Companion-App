@@ -53,8 +53,8 @@ const HomeScreen = () => {
       const todayData = await eventsAPI.getToday();
       setTodayEvents(todayData);
 
-      // Fetch upcoming events from API
-      const upcomingData = await eventsAPI.getUpcoming(5);
+      // Fetch upcoming events from API (after today)
+      const upcomingData = await eventsAPI.getUpcoming(10);
       setUpcomingEvents(upcomingData);
 
       // Sync events to local database for offline access
@@ -82,12 +82,12 @@ const HomeScreen = () => {
       );
       setTodayEvents(todayResult);
 
-      // Load upcoming events
+      // Load upcoming events (after today)
       const upcomingResult = db.getAllSync(
         `SELECT * FROM events
          WHERE date(start_time) > date('now')
          ORDER BY start_time ASC
-         LIMIT 5`
+         LIMIT 10`
       );
       setUpcomingEvents(upcomingResult);
     } catch (error) {
@@ -196,7 +196,7 @@ const HomeScreen = () => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Upcoming Events</Text>
-        <Text style={styles.sectionSubtitle}>Next 5 events</Text>
+        <Text style={styles.sectionSubtitle}>Starting tomorrow</Text>
 
         {upcomingEvents.length === 0 ? (
           <View style={styles.emptyCard}>

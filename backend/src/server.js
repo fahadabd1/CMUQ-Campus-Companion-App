@@ -8,6 +8,7 @@ require('dotenv').config();
 const webhookRoutes = require('./routes/webhookRoutes');
 const eventsRoutes = require('./routes/eventsRoutes');
 const lostFoundRoutes = require('./routes/lostFoundRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 const pool = require('./config/database');
 const LostFound = require('./models/LostFound');
 
@@ -21,8 +22,8 @@ app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   credentials: true
 }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' })); // Increase limit for base64 images
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
 app.get('/', (req, res) => {
@@ -43,6 +44,7 @@ app.use('/webhook', webhookRoutes);
 // API routes (for mobile app)
 app.use('/api/events', eventsRoutes);
 app.use('/api/lost-found', lostFoundRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 handler
 app.use((req, res) => {

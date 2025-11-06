@@ -15,7 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import db from '../database/database';
 import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { lostFoundAPI, syncLostFoundToLocal } from '../services/api';
+import { lostFoundAPI, syncLostFoundToLocal, uploadAPI } from '../services/api';
 
 const LostFoundScreen = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -141,6 +141,20 @@ const LostFoundScreen = () => {
     }
 
     try {
+      let imageUrl = null;
+
+      // Upload image to Cloudinary if one is selected
+      if (newItem.image_path) {
+        Alert.alert('Uploading', 'Uploading image, please wait...');
+        try {
+          imageUrl = await uploadAPI.uploadImage(newItem.image_path);
+          console.log('✓ Image uploaded:', imageUrl);
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          Alert.alert('Warning', 'Failed to upload image, but posting item without image');
+        }
+      }
+
       // Post to backend API
       const itemData = {
         type: newItem.type,
@@ -148,7 +162,7 @@ const LostFoundScreen = () => {
         description: newItem.description,
         location_lost: newItem.location_lost || '',
         contact_info: newItem.contact_info || '',
-        image_url: newItem.image_path || null,
+        image_url: imageUrl,
         category: 'Other' // Default category
       };
 

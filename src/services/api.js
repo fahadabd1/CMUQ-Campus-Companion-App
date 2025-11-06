@@ -264,6 +264,43 @@ export const lostFoundAPI = {
 };
 
 /**
+ * Upload API
+ */
+export const uploadAPI = {
+  /**
+   * Upload image as base64
+   * @param {string} uri - Local image URI
+   * @returns {Promise<string>} - Cloud URL
+   */
+  uploadImage: async (uri) => {
+    try {
+      // Convert image to base64
+      const base64 = await fetch(uri)
+        .then(res => res.blob())
+        .then(blob => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        });
+
+      // Upload to backend
+      const response = await apiFetch('/upload/image', {
+        method: 'POST',
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      return response.data.url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  },
+};
+
+/**
  * Sync lost/found items from API to local SQLite database
  */
 export const syncLostFoundToLocal = async (db) => {

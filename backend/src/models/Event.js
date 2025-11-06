@@ -12,17 +12,18 @@ class Event {
       location,
       start_time,
       end_time,
+      link = null,
       source = 'email',
       raw_email_data = null
     } = eventData;
 
     const query = `
-      INSERT INTO events (title, description, category, location, start_time, end_time, source, raw_email_data)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO events (title, description, category, location, start_time, end_time, link, source, raw_email_data)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *;
     `;
 
-    const values = [title, description, category, location, start_time, end_time, source, raw_email_data];
+    const values = [title, description, category, location, start_time, end_time, link, source, raw_email_data];
 
     try {
       const result = await pool.query(query, values);

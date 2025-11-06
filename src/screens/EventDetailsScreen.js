@@ -5,6 +5,8 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -23,6 +25,22 @@ const EventDetailsScreen = () => {
     location: params.location,
     start_time: params.start_time,
     end_time: params.end_time,
+    link: params.link,
+  };
+
+  const handleLinkPress = async () => {
+    if (event.link) {
+      try {
+        const supported = await Linking.canOpenURL(event.link);
+        if (supported) {
+          await Linking.openURL(event.link);
+        } else {
+          Alert.alert('Error', 'Cannot open this link');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to open link');
+      }
+    }
   };
 
   const getCategoryColor = (category) => {
@@ -99,6 +117,17 @@ const EventDetailsScreen = () => {
               <View style={styles.infoCard}>
                 <Text style={styles.descriptionText}>{event.description}</Text>
               </View>
+            </View>
+          )}
+
+          {/* Link Section */}
+          {event.link && (
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>🔗 Link</Text>
+              <TouchableOpacity style={styles.linkButton} onPress={handleLinkPress}>
+                <Text style={styles.linkText}>{event.link}</Text>
+                <Text style={styles.linkArrow}>→</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -189,6 +218,31 @@ const styles = StyleSheet.create({
     fontSize: Typography.body.fontSize,
     color: Colors.light.text,
     lineHeight: 24,
+  },
+  linkButton: {
+    backgroundColor: Colors.light.background,
+    padding: Spacing.lg,
+    borderRadius: Components.card.borderRadius,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  linkText: {
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.primary,
+    fontWeight: '600',
+    flex: 1,
+  },
+  linkArrow: {
+    fontSize: Typography.body.fontSize,
+    color: Colors.light.primary,
+    fontWeight: '600',
+    marginLeft: Spacing.sm,
   },
 });
 

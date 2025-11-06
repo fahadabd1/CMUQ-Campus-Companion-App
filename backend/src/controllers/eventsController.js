@@ -108,14 +108,8 @@ exports.getByCategory = async (req, res) => {
   try {
     const { category } = req.params;
 
-    // Validate category
-    const validCategories = ['Academic', 'Student Life', 'Sports', 'Other'];
-    if (!validCategories.includes(category)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid category. Must be one of: Academic, Student Life, Sports, Other'
-      });
-    }
+    // Accept any category from email (no validation)
+    // This allows categories like "Fun", "Academic", etc.
 
     const events = await Event.getByCategory(category);
 

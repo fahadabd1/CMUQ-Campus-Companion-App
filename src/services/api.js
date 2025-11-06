@@ -131,8 +131,8 @@ export const syncEventsToLocal = async (db) => {
 
     // Insert events into local database
     const insertStmt = db.prepareSync(
-      `INSERT INTO events (title, description, category, location, start_time, end_time, source)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO events (title, description, category, location, start_time, end_time, link, source)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     );
 
     events.forEach((event) => {
@@ -143,6 +143,7 @@ export const syncEventsToLocal = async (db) => {
         event.location || '',
         event.start_time,
         event.end_time,
+        event.link || null,
         'api'
       ]);
     });

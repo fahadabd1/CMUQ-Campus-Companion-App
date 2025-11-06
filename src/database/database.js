@@ -15,6 +15,7 @@ export const initDatabase = () => {
         location TEXT,
         start_time TEXT NOT NULL,
         end_time TEXT,
+        link TEXT,
         source TEXT DEFAULT 'manual',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
@@ -59,6 +60,17 @@ export const initDatabase = () => {
       // Column already exists or other error - this is fine
       if (!error.message.includes('duplicate column')) {
         console.log('Source column already exists or migration not needed');
+      }
+    }
+
+    // Migration: Add 'link' column to events table if it doesn't exist
+    try {
+      db.execSync(`ALTER TABLE events ADD COLUMN link TEXT;`);
+      console.log('✓ Added link column to events table');
+    } catch (error) {
+      // Column already exists or other error - this is fine
+      if (!error.message.includes('duplicate column')) {
+        console.log('Link column already exists or migration not needed');
       }
     }
 

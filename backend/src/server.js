@@ -77,6 +77,7 @@ async function initializeDatabase() {
         location VARCHAR(255),
         start_time TIMESTAMP NOT NULL,
         end_time TIMESTAMP,
+        link TEXT,
         source VARCHAR(50) DEFAULT 'email',
         raw_email_data JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -87,6 +88,11 @@ async function initializeDatabase() {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_events_start_time ON events(start_time);
       CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
+    `);
+
+    // Add link column if it doesn't exist (migration for existing databases)
+    await pool.query(`
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS link TEXT;
     `);
 
     // Initialize Lost & Found table

@@ -81,6 +81,7 @@ const AllEventsScreen = () => {
         location: event.location,
         start_time: event.start_time,
         end_time: event.end_time || '',
+        link: event.link || '',
       },
     });
   };

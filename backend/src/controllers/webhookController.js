@@ -24,6 +24,7 @@ exports.receiveEvent = async (req, res) => {
       eventlocation,
       eventcategory,
       eventdescription,
+      eventlink,
       // Fallback to old field names for backward compatibility
       event_title,
       title,
@@ -33,7 +34,8 @@ exports.receiveEvent = async (req, res) => {
       time,
       location,
       category,
-      description
+      description,
+      link
     } = req.body;
 
     // Extract event title (try new format first, then fallback)
@@ -77,18 +79,20 @@ exports.receiveEvent = async (req, res) => {
     const eventLoc = eventlocation || location || 'TBD';
     const eventCat = eventcategory || category || 'Other';
     const eventDesc = eventdescription || description || '';
+    const eventLink = eventlink || link || null;
 
-    // Normalize category (match mobile app categories)
-    const normalizedCategory = normalizeCategory(eventCat);
+    // Use category directly from email (no normalization)
+    // This allows any category like "Fun", "Academic", etc.
 
     // Create event in database
     const newEvent = await Event.create({
       title: eventTitle,
       description: eventDesc,
-      category: normalizedCategory,
+      category: eventCat,
       location: eventLoc,
       start_time: startDateTime,
       end_time: endDateTime,
+      link: eventLink,
       source: 'email',
       raw_email_data: JSON.stringify(req.body)
     });

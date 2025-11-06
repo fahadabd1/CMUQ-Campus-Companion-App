@@ -124,6 +124,7 @@ const HomeScreen = () => {
         location: event.location,
         start_time: event.start_time,
         end_time: event.end_time || '',
+        link: event.link || '',
       },
     });
   };
@@ -196,7 +197,6 @@ const HomeScreen = () => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Upcoming Events</Text>
-        <Text style={styles.sectionSubtitle}>Starting tomorrow</Text>
 
         {upcomingEvents.length === 0 ? (
           <View style={styles.emptyCard}>

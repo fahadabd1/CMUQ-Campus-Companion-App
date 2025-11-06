@@ -435,152 +435,51 @@ export const ROOM_DATABASE = {
   '2301': { floor: 'Second Floor', image: 1, x: 94.81, y: 11.65 },
 
   // ===== THIRD FLOOR =====
-  '3001': { floor: 'Third Floor', image: 2, x: 5, y: 10 },
-  '3002': { floor: 'Third Floor', image: 2, x: 5, y: 15 },
-  '3003': { floor: 'Third Floor', image: 2, x: 5, y: 20 },
-  '3004': { floor: 'Third Floor', image: 2, x: 5, y: 25 },
-  '3005': { floor: 'Third Floor', image: 2, x: 5, y: 30 },
-  '3006': { floor: 'Third Floor', image: 2, x: 5, y: 35 },
-  '3007': { floor: 'Third Floor', image: 2, x: 5, y: 40 },
-  '3008': { floor: 'Third Floor', image: 2, x: 5, y: 45 },
-  '3009': { floor: 'Third Floor', image: 2, x: 5, y: 50 },
-  '3010': { floor: 'Third Floor', image: 2, x: 5, y: 55 },
-  '3011': { floor: 'Third Floor', image: 2, x: 5, y: 60 },
-  '3012': { floor: 'Third Floor', image: 2, x: 10, y: 10 },
-  '3013': { floor: 'Third Floor', image: 2, x: 10, y: 15 },
-  '3014': { floor: 'Third Floor', image: 2, x: 10, y: 20 },
-  '3015': { floor: 'Third Floor', image: 2, x: 10, y: 25 },
-  '3016': { floor: 'Third Floor', image: 2, x: 10, y: 30 },
-  '3017': { floor: 'Third Floor', image: 2, x: 10, y: 35 },
-  '3018': { floor: 'Third Floor', image: 2, x: 10, y: 40 },
-  '3019': { floor: 'Third Floor', image: 2, x: 10, y: 45 },
-  '3020': { floor: 'Third Floor', image: 2, x: 10, y: 50 },
-  '3021': { floor: 'Third Floor', image: 2, x: 10, y: 55 },
-  '3022': { floor: 'Third Floor', image: 2, x: 10, y: 60 },
-  '3023': { floor: 'Third Floor', image: 2, x: 15, y: 65 },
-  '3024': { floor: 'Third Floor', image: 2, x: 20, y: 65 },
-  '3025': { floor: 'Third Floor', image: 2, x: 25, y: 65 },
-  '3026': { floor: 'Third Floor', image: 2, x: 30, y: 65 },
-  '3027': { floor: 'Third Floor', image: 2, x: 35, y: 65 },
-  '3028': { floor: 'Third Floor', image: 2, x: 25, y: 35 },
-  '3029': { floor: 'Third Floor', image: 2, x: 20, y: 30 },
-  '3030': { floor: 'Third Floor', image: 2, x: 20, y: 20 },
-  '3031': { floor: 'Third Floor', image: 2, x: 25, y: 20 },
-  '3032': { floor: 'Third Floor', image: 2, x: 30, y: 20 },
-  '3033': { floor: 'Third Floor', image: 2, x: 22, y: 25 },
-  '3034': { floor: 'Third Floor', image: 2, x: 35, y: 30 },
-  '3035': { floor: 'Third Floor', image: 2, x: 35, y: 35 },
-  '3036': { floor: 'Third Floor', image: 2, x: 35, y: 40 },
-  '3037': { floor: 'Third Floor', image: 2, x: 35, y: 45 },
-  '3038': { floor: 'Third Floor', image: 2, x: 35, y: 50 },
-  '3039': { floor: 'Third Floor', image: 2, x: 35, y: 55 },
-  '3040': { floor: 'Third Floor', image: 2, x: 35, y: 60 },
-  '3041': { floor: 'Third Floor', image: 2, x: 40, y: 65 },
-  '3042': { floor: 'Third Floor', image: 2, x: 45, y: 65 },
-  '3043': { floor: 'Third Floor', image: 2, x: 50, y: 65 },
-  '3044': { floor: 'Third Floor', image: 2, x: 40, y: 35 },
-  '3045': { floor: 'Third Floor', image: 2, x: 40, y: 40 },
-  '3046': { floor: 'Third Floor', image: 2, x: 40, y: 45 },
-  '3047': { floor: 'Third Floor', image: 2, x: 40, y: 50 },
-  '3048': { floor: 'Third Floor', image: 2, x: 40, y: 30 },
-  '3049': { floor: 'Third Floor', image: 2, x: 38, y: 25 },
-  '3050': { floor: 'Third Floor', image: 2, x: 40, y: 20 },
-  '3060': { floor: 'Third Floor', image: 2, x: 45, y: 25 },
-  '3061': { floor: 'Third Floor', image: 2, x: 50, y: 30 },
-  '3064': { floor: 'Third Floor', image: 2, x: 55, y: 35 },
-  '3065': { floor: 'Third Floor', image: 2, x: 60, y: 30 },
-  '3066': { floor: 'Third Floor', image: 2, x: 65, y: 25 },
-  '3068': { floor: 'Third Floor', image: 2, x: 65, y: 30 },
-  '3069': { floor: 'Third Floor', image: 2, x: 65, y: 35 },
-  '3070': { floor: 'Third Floor', image: 2, x: 65, y: 40 },
-  '3072': { floor: 'Third Floor', image: 2, x: 65, y: 28 },
-  '3073': { floor: 'Third Floor', image: 2, x: 70, y: 40 },
-  '3074': { floor: 'Third Floor', image: 2, x: 65, y: 45 },
-  '3075': { floor: 'Third Floor', image: 2, x: 65, y: 50 },
-  '3076': { floor: 'Third Floor', image: 2, x: 70, y: 30 },
-  '3077': { floor: 'Third Floor', image: 2, x: 70, y: 35 },
-  '3078': { floor: 'Third Floor', image: 2, x: 70, y: 45 },
-  '3079': { floor: 'Third Floor', image: 2, x: 70, y: 50 },
-  '3080': { floor: 'Third Floor', image: 2, x: 45, y: 20 },
-  '3053': { floor: 'Third Floor', image: 2, x: 75, y: 10 },
-  '3054': { floor: 'Third Floor', image: 2, x: 78, y: 10 },
-  '3055': { floor: 'Third Floor', image: 2, x: 81, y: 10 },
-  '3056': { floor: 'Third Floor', image: 2, x: 84, y: 10 },
-  '3087': { floor: 'Third Floor', image: 2, x: 75, y: 25 },
-  '3089': { floor: 'Third Floor', image: 2, x: 75, y: 30 },
-  '3090': { floor: 'Third Floor', image: 2, x: 75, y: 35 },
-  '3091': { floor: 'Third Floor', image: 2, x: 75, y: 40 },
-  '3093': { floor: 'Third Floor', image: 2, x: 80, y: 25 },
-  '3094': { floor: 'Third Floor', image: 2, x: 80, y: 30 },
-  '3095': { floor: 'Third Floor', image: 2, x: 80, y: 35 },
-  '3096': { floor: 'Third Floor', image: 2, x: 80, y: 40 },
-  '3098': { floor: 'Third Floor', image: 2, x: 85, y: 25 },
-  '3099': { floor: 'Third Floor', image: 2, x: 88, y: 25 },
-  '3100': { floor: 'Third Floor', image: 2, x: 85, y: 18 },
-  '3101': { floor: 'Third Floor', image: 2, x: 86, y: 20 },
-  '3102': { floor: 'Third Floor', image: 2, x: 87, y: 22 },
-  '3103': { floor: 'Third Floor', image: 2, x: 82, y: 15 },
-  '3104': { floor: 'Third Floor', image: 2, x: 84, y: 14 },
-  '3106': { floor: 'Third Floor', image: 2, x: 83, y: 40 },
-  '3107': { floor: 'Third Floor', image: 2, x: 82, y: 20 },
-  '3108': { floor: 'Third Floor', image: 2, x: 83, y: 22 },
-  '3112': { floor: 'Third Floor', image: 2, x: 86, y: 25 },
-  '3113': { floor: 'Third Floor', image: 2, x: 88, y: 24 },
-  '3115': { floor: 'Third Floor', image: 2, x: 90, y: 24 },
-  '3116': { floor: 'Third Floor', image: 2, x: 90, y: 27 },
-  '3117': { floor: 'Third Floor', image: 2, x: 92, y: 12 },
-  '3118': { floor: 'Third Floor', image: 2, x: 93, y: 17 },
-  '3119': { floor: 'Third Floor', image: 2, x: 94, y: 20 },
-  '3121': { floor: 'Third Floor', image: 2, x: 91, y: 23 },
-  '3122': { floor: 'Third Floor', image: 2, x: 92, y: 28 },
-  '3123': { floor: 'Third Floor', image: 2, x: 92, y: 48 },
-  '3124': { floor: 'Third Floor', image: 2, x: 90, y: 45 },
-  '3125': { floor: 'Third Floor', image: 2, x: 88, y: 42 },
-  '3126': { floor: 'Third Floor', image: 2, x: 85, y: 48 },
-  '3127': { floor: 'Third Floor', image: 2, x: 92, y: 43 },
-  '3128': { floor: 'Third Floor', image: 2, x: 90, y: 40 },
-  '3129': { floor: 'Third Floor', image: 2, x: 87, y: 45 },
-  '3138': { floor: 'Third Floor', image: 2, x: 88, y: 55 },
-  '3139': { floor: 'Third Floor', image: 2, x: 86, y: 58 },
-  '3140': { floor: 'Third Floor', image: 2, x: 72, y: 15 },
-  '3141': { floor: 'Third Floor', image: 2, x: 75, y: 16 },
-  '3143': { floor: 'Third Floor', image: 2, x: 79, y: 17 },
-  '3144': { floor: 'Third Floor', image: 2, x: 77, y: 18 },
-  '3145': { floor: 'Third Floor', image: 2, x: 81, y: 20 },
-  '3146': { floor: 'Third Floor', image: 2, x: 74, y: 21 },
-  '3151': { floor: 'Third Floor', image: 2, x: 84, y: 30 },
-  '3152': { floor: 'Third Floor', image: 2, x: 83, y: 33 },
-  '3153': { floor: 'Third Floor', image: 2, x: 79, y: 27 },
-  '3154': { floor: 'Third Floor', image: 2, x: 78, y: 30 },
-  '3155': { floor: 'Third Floor', image: 2, x: 81, y: 36 },
-  '3156': { floor: 'Third Floor', image: 2, x: 70, y: 48 },
-  '3157': { floor: 'Third Floor', image: 2, x: 72, y: 40 },
-  '3158': { floor: 'Third Floor', image: 2, x: 75, y: 35 },
-  '3159': { floor: 'Third Floor', image: 2, x: 68, y: 38 },
-  '3160': { floor: 'Third Floor', image: 2, x: 83, y: 23 },
-  '3161': { floor: 'Third Floor', image: 2, x: 88, y: 35 },
-  '3163': { floor: 'Third Floor', image: 2, x: 80, y: 21 },
-  '3164': { floor: 'Third Floor', image: 2, x: 78, y: 20 },
-  '3165': { floor: 'Third Floor', image: 2, x: 86, y: 28 },
-  '3167': { floor: 'Third Floor', image: 2, x: 60, y: 60 },
-  '3169': { floor: 'Third Floor', image: 2, x: 58, y: 65 },
-  '3170': { floor: 'Third Floor', image: 2, x: 62, y: 68 },
-  '3171': { floor: 'Third Floor', image: 2, x: 65, y: 71 },
-  '3172': { floor: 'Third Floor', image: 2, x: 55, y: 70 },
-  '3173': { floor: 'Third Floor', image: 2, x: 52, y: 73 },
-  '3174': { floor: 'Third Floor', image: 2, x: 48, y: 76 },
-  '3175': { floor: 'Third Floor', image: 2, x: 45, y: 79 },
-  '3176': { floor: 'Third Floor', image: 2, x: 42, y: 81 },
-  '3177': { floor: 'Third Floor', image: 2, x: 38, y: 83 },
-  '3178': { floor: 'Third Floor', image: 2, x: 35, y: 85 },
-  '3180': { floor: 'Third Floor', image: 2, x: 32, y: 87 },
-  '3181': { floor: 'Third Floor', image: 2, x: 29, y: 88 },
-  '3182': { floor: 'Third Floor', image: 2, x: 26, y: 89 },
-  '3183': { floor: 'Third Floor', image: 2, x: 23, y: 89 },
-  '3184': { floor: 'Third Floor', image: 2, x: 20, y: 88 },
-  '3185': { floor: 'Third Floor', image: 2, x: 17, y: 87 },
-  '3191': { floor: 'Third Floor', image: 2, x: 26, y: 80 },
-  '3192': { floor: 'Third Floor', image: 2, x: 23, y: 82 },
+  // Image dimensions: 1136 × 821 px
+  '3001': { floor: 'Third Floor', image: 2, x: 15.14, y: 2.92 },  // 172,24
+  '3002': { floor: 'Third Floor', image: 2, x: 16.90, y: 5.24 },  // 192,43
+  '3003': { floor: 'Third Floor', image: 2, x: 12.24, y: 8.65 },  // 139,71
+  '3004': { floor: 'Third Floor', image: 2, x: 13.47, y: 8.77 },  // 153,72
+  '3005': { floor: 'Third Floor', image: 2, x: 15.23, y: 6.82 },  // 173,56
+  '3006': { floor: 'Third Floor', image: 2, x: 16.29, y: 6.70 },  // 185,55
+  '3007': { floor: 'Third Floor', image: 2, x: 17.78, y: 7.06 },  // 202,58
+  '3041': { floor: 'Third Floor', image: 2, x: 60.83, y: 43.48 },  // 691,357
+  '3042': { floor: 'Third Floor', image: 2, x: 60.56, y: 47.75 },  // 688,392
+  '3043': { floor: 'Third Floor', image: 2, x: 66.11, y: 45.31 },  // 751,372
+  '3044': { floor: 'Third Floor', image: 2, x: 66.29, y: 50.67 },  // 753,416
+  '3046': { floor: 'Third Floor', image: 2, x: 61.00, y: 71.01 },  // 693,583
+  '3047': { floor: 'Third Floor', image: 2, x: 58.80, y: 62.48 },  // 668,513
+  '3048': { floor: 'Third Floor', image: 2, x: 63.73, y: 66.38 },  // 724,545
+  '3061': { floor: 'Third Floor', image: 2, x: 34.59, y: 80.02 },  // 393,657
+  '3065': { floor: 'Third Floor', image: 2, x: 25.44, y: 76.86 },  // 289,631
+  '3069': { floor: 'Third Floor', image: 2, x: 17.08, y: 71.38 },  // 194,586
+  '3076': { floor: 'Third Floor', image: 2, x: 6.69, y: 44.58 },  // 76,366
+  '3095': { floor: 'Third Floor', image: 2, x: 57.48, y: 47.50 },  // 653,390
+  '3107': { floor: 'Third Floor', image: 2, x: 57.39, y: 43.00 },  // 652,353
+  '3109': { floor: 'Third Floor', image: 2, x: 12.59, y: 28.87 },  // 143,237
+  '3110': { floor: 'Third Floor', image: 2, x: 12.59, y: 25.82 },  // 143,212
+  '3111': { floor: 'Third Floor', image: 2, x: 12.59, y: 23.14 },  // 143,190
+  '3112': { floor: 'Third Floor', image: 2, x: 12.59, y: 20.95 },  // 143,172
+  '3113': { floor: 'Third Floor', image: 2, x: 12.59, y: 19.24 },  // 143,158
+  '3114': { floor: 'Third Floor', image: 2, x: 12.59, y: 17.17 },  // 143,141
+  '3115': { floor: 'Third Floor', image: 2, x: 12.59, y: 15.10 },  // 143,124
+  '3116': { floor: 'Third Floor', image: 2, x: 12.59, y: 13.15 },  // 143,108
+  '3117': { floor: 'Third Floor', image: 2, x: 12.59, y: 10.96 },  // 143,90
+  '3178': { floor: 'Third Floor', image: 2, x: 6.78, y: 53.84 },  // 77,442
+  '3203': { floor: 'Third Floor', image: 2, x: 62.94, y: 55.30 },  // 715,454
+  '3204': { floor: 'Third Floor', image: 2, x: 66.29, y: 55.30 },  // 753,454
+  '3205': { floor: 'Third Floor', image: 2, x: 57.22, y: 69.31 },  // 650,569
+  '3206': { floor: 'Third Floor', image: 2, x: 38.12, y: 87.33 },  // 433,717
+  '3207': { floor: 'Third Floor', image: 2, x: 38.03, y: 83.44 },  // 432,685
+  '3208': { floor: 'Third Floor', image: 2, x: 22.09, y: 76.98 },  // 251,632
+  '3209': { floor: 'Third Floor', image: 2, x: 19.98, y: 78.08 },  // 227,641
+  '3210': { floor: 'Third Floor', image: 2, x: 18.66, y: 80.63 },  // 212,662
+  '3211': { floor: 'Third Floor', image: 2, x: 8.80, y: 64.56 },  // 100,530
+  '3212': { floor: 'Third Floor', image: 2, x: 12.15, y: 61.27 },  // 138,503
+  '3213': { floor: 'Third Floor', image: 2, x: 11.62, y: 59.20 },  // 132,486
+  '3214': { floor: 'Third Floor', image: 2, x: 11.09, y: 57.25 },  // 126,470
+  '3215': { floor: 'Third Floor', image: 2, x: 10.39, y: 54.81 },  // 118,450
+
 };
 
 export const FLOOR_NAMES = ['First Floor', 'Second Floor', 'Third Floor'];

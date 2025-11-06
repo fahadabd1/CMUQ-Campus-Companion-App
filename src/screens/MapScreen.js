@@ -59,12 +59,13 @@ const MapScreen = () => {
     if (room) {
       setFoundRoom(room);
       setCurrentFloor(room.image);
-      Alert.alert('Room Found!', `Room ${roomNumber} is on the ${room.floor}`);
     } else {
       setFoundRoom(null);
       Alert.alert('Not Found', `Room ${roomNumber} not found`);
     }
   };
+
+  const styles = createStyles(colors);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -78,7 +79,15 @@ const MapScreen = () => {
         </View>
 
       <View style={styles.search}>
-        <TextInput style={styles.input} placeholder="Room number" value={searchText} onChangeText={setSearchText} keyboardType="number-pad" onSubmitEditing={handleSearch} />
+        <TextInput
+          style={styles.input}
+          placeholder="Room number"
+          placeholderTextColor={colors.textSecondary}
+          value={searchText}
+          onChangeText={setSearchText}
+          keyboardType="number-pad"
+          onSubmitEditing={handleSearch}
+        />
         <TouchableOpacity style={styles.btn} onPress={handleSearch}>
           <Text style={styles.btnText}>Find</Text>
         </TouchableOpacity>
@@ -109,14 +118,14 @@ const MapScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface // DESIGN.md: Gray-50
+    backgroundColor: colors.surface // DESIGN.md: Gray-50
   },
   scrollContent: {
     paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
@@ -127,40 +136,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Spacing.md, // DESIGN.md: 16px
     paddingTop: 40,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border
+    borderBottomColor: colors.border
   },
   backText: {
-    color: Colors.light.primary, // DESIGN.md: Indigo
+    color: colors.primary, // DESIGN.md: Indigo
     fontSize: Typography.body.fontSize,
     fontWeight: '600'
   },
   title: {
     fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
     fontWeight: Typography.h2.fontWeight,
-    color: Colors.light.text
+    color: colors.text
   },
   search: {
     flexDirection: 'row',
     padding: Spacing.md,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
     gap: 10
   },
   input: {
     flex: 1,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: colors.background,
     borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
     paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
     paddingVertical: 10,
     fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
     borderWidth: 1,
-    borderColor: Colors.light.border
+    borderColor: colors.border,
+    color: colors.text
   },
   btn: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
     paddingHorizontal: Spacing.lg,
     paddingVertical: 10,
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
@@ -172,7 +182,7 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   info: {
-    backgroundColor: Colors.light.success, // DESIGN.md: Green
+    backgroundColor: colors.success, // DESIGN.md: Green
     padding: 12,
     alignItems: 'center'
   },
@@ -183,9 +193,9 @@ const styles = StyleSheet.create({
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border
+    borderBottomColor: colors.border
   },
   tab: {
     flex: 1,
@@ -195,21 +205,21 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent'
   },
   tabActive: {
-    borderBottomColor: Colors.light.primary, // DESIGN.md: Indigo
-    backgroundColor: '#EFF6FF'
+    borderBottomColor: colors.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.surface
   },
   tabText: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500'
   },
   tabTextActive: {
-    color: Colors.light.primary, // DESIGN.md: Indigo
+    color: colors.primary, // DESIGN.md: Indigo
     fontWeight: '700'
   },
   map: {
     flex: 1,
-    backgroundColor: Colors.light.border
+    backgroundColor: colors.border
   },
   mapWrapper: {
     width: width - 20,

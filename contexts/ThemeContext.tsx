@@ -16,8 +16,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useSystemColorScheme();
-  const [themePreference, setThemePreferenceState] = useState<ThemePreference>('system');
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(systemColorScheme === 'dark' ? 'dark' : 'light');
+  const [themePreference, setThemePreferenceState] = useState<ThemePreference>('light');
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
 
   // Load theme preference from database on mount
   useEffect(() => {

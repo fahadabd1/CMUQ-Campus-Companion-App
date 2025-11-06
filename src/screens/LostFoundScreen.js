@@ -38,6 +38,8 @@ const LostFoundScreen = () => {
     loadItems();
   }, [activeTab]);
 
+  const styles = createStyles(colors);
+
   const loadItems = async () => {
     try {
       // Try to sync from API first
@@ -223,6 +225,7 @@ const LostFoundScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Item Name *"
+            placeholderTextColor={colors.textSecondary}
             value={newItem.item_name}
             onChangeText={(text) => setNewItem({ ...newItem, item_name: text })}
           />
@@ -230,6 +233,7 @@ const LostFoundScreen = () => {
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Description *"
+            placeholderTextColor={colors.textSecondary}
             value={newItem.description}
             onChangeText={(text) => setNewItem({ ...newItem, description: text })}
             multiline
@@ -239,6 +243,7 @@ const LostFoundScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Location Lost/Found"
+            placeholderTextColor={colors.textSecondary}
             value={newItem.location_lost}
             onChangeText={(text) => setNewItem({ ...newItem, location_lost: text })}
           />
@@ -246,6 +251,7 @@ const LostFoundScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Contact Info"
+            placeholderTextColor={colors.textSecondary}
             value={newItem.contact_info}
             onChangeText={(text) => setNewItem({ ...newItem, contact_info: text })}
           />
@@ -347,14 +353,14 @@ const LostFoundScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+    backgroundColor: colors.surface, // DESIGN.md: Gray-50
   },
   scrollContent: {
     paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
@@ -364,17 +370,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: Spacing.md,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
     fontWeight: Typography.h2.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
   },
   addButton: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
@@ -386,9 +392,9 @@ const styles = StyleSheet.create({
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   tab: {
     flex: 1,
@@ -397,14 +403,14 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: Colors.light.primary, // DESIGN.md: Indigo with underline
+    borderBottomColor: colors.primary, // DESIGN.md: Indigo with underline
   },
   tabText: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   tabTextActive: {
-    color: Colors.light.primary, // DESIGN.md: Indigo
+    color: colors.primary, // DESIGN.md: Indigo
     fontWeight: '600',
   },
   itemsList: {
@@ -413,7 +419,7 @@ const styles = StyleSheet.create({
   },
   itemCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
     marginBottom: 10,
     padding: Components.card.padding, // DESIGN.md: 16px
@@ -441,7 +447,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     flex: 1,
   },
   typeBadge: {
@@ -458,21 +464,21 @@ const styles = StyleSheet.create({
   typeBadgeText: {
     fontSize: 10,
     fontWeight: '600',
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   itemDescription: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   itemLocation: {
     fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 3,
   },
   itemDate: {
     fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
@@ -480,24 +486,24 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: Spacing.md,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   formTitle: {
     fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
     fontWeight: Typography.h2.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
   },
   cancelText: {
-    color: Colors.light.error, // DESIGN.md: Red
+    color: colors.error, // DESIGN.md: Red
     fontSize: Typography.body.fontSize,
   },
   form: {
@@ -514,38 +520,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: colors.border,
   },
   typeButtonActive: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
-    borderColor: Colors.light.primary,
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
+    borderColor: colors.primary,
   },
   typeButtonText: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   typeButtonTextActive: {
     color: 'white',
   },
   input: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: colors.border,
     borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
     paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
     paddingVertical: 12,
     marginBottom: Spacing.md,
     fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+    color: colors.text,
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: 'top',
   },
   photoButton: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: colors.border,
     borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
     padding: Spacing.md,
     alignItems: 'center',
@@ -553,7 +560,7 @@ const styles = StyleSheet.create({
   },
   photoButtonText: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   photoPreview: {
     width: '100%',
@@ -561,7 +568,7 @@ const styles = StyleSheet.create({
     borderRadius: Components.card.borderRadius,
   },
   submitButton: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
     paddingVertical: 15,
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
     alignItems: 'center',

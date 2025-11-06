@@ -136,6 +136,8 @@ const HomeScreen = () => {
     router.push('/all-events');
   };
 
+  const styles = createStyles(colors);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
@@ -252,39 +254,39 @@ const getCategoryColor = (category) => {
   return categoryColors[category] || categoryColors['Other'];
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.primary, // Match header color
+    backgroundColor: colors.primary,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50 (#F9FAFB)
+    backgroundColor: colors.surface,
   },
   scrollContent: {
     paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo (#3F51B5)
+    backgroundColor: colors.primary,
     padding: Spacing.lg,
-    paddingTop: Spacing.lg, // SafeAreaView handles top spacing now
+    paddingTop: Spacing.lg,
   },
   welcomeText: {
     color: 'white',
-    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
+    fontSize: Typography.h1.fontSize,
     fontWeight: Typography.h1.fontWeight,
   },
   subtitle: {
     color: 'white',
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    fontSize: Typography.small.fontSize,
     marginTop: 5,
     opacity: 0.9,
   },
   mapCard: {
-    margin: Spacing.md, // DESIGN.md: 16px
-    borderRadius: Components.map.borderRadius, // DESIGN.md: 8px
+    margin: Spacing.md,
+    borderRadius: Components.map.borderRadius,
     overflow: 'hidden',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -293,40 +295,40 @@ const styles = StyleSheet.create({
   },
   mapPreviewPlaceholder: {
     width: '100%',
-    height: Components.map.previewHeight, // DESIGN.md: 200px
-    backgroundColor: Colors.light.border,
+    height: Components.map.previewHeight,
+    backgroundColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   mapPlaceholderText: {
-    fontSize: Typography.h3.fontSize, // DESIGN.md: 18px
-    color: Colors.light.textSecondary,
+    fontSize: Typography.h3.fontSize,
+    color: colors.textSecondary,
     fontWeight: Typography.h3.fontWeight,
   },
   mapText: {
     padding: 12,
     textAlign: 'center',
-    color: Colors.light.primary, // DESIGN.md: Indigo
+    color: colors.primary,
     fontWeight: '600',
   },
   section: {
     margin: Spacing.md,
   },
   sectionTitle: {
-    fontSize: Typography.h3.fontSize, // DESIGN.md: 18px
+    fontSize: Typography.h3.fontSize,
     fontWeight: Typography.h3.fontWeight,
-    color: Colors.light.text, // DESIGN.md: Gray-900
+    color: colors.text,
     marginBottom: 5,
   },
   sectionSubtitle: {
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    fontSize: Typography.small.fontSize,
+    color: colors.textSecondary,
     marginBottom: 10,
   },
   eventCard: {
-    backgroundColor: Colors.light.background,
-    padding: Components.card.padding, // DESIGN.md: 16px
-    borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
+    backgroundColor: colors.background,
+    padding: Components.card.padding,
+    borderRadius: Components.card.borderRadius,
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -341,46 +343,46 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   eventTitle: {
-    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    fontSize: Typography.body.fontSize,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     flex: 1,
   },
   categoryBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: Typography.caption.fontSize, // 12px
+    borderRadius: Typography.caption.fontSize,
     marginLeft: 10,
   },
   categoryText: {
     color: 'white',
-    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
+    fontSize: Typography.caption.fontSize,
     fontWeight: '600',
   },
   eventTime: {
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    fontSize: Typography.small.fontSize,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   eventLocation: {
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    fontSize: Typography.small.fontSize,
+    color: colors.textSecondary,
   },
   emptyCard: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.lg,
     borderRadius: Components.card.borderRadius,
     alignItems: 'center',
   },
   emptyText: {
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     fontSize: Typography.small.fontSize,
   },
   viewMoreButton: {
     marginTop: 10,
   },
   viewMoreText: {
-    color: Colors.light.primary, // DESIGN.md: Indigo
+    color: colors.primary,
     fontSize: Typography.small.fontSize,
     fontWeight: '600',
   },

@@ -170,6 +170,8 @@ const ScheduleScreen = () => {
     return timeStr;
   };
 
+  const styles = createStyles(colors);
+
   if (showAddForm) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -208,6 +210,7 @@ const ScheduleScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Class Name *"
+              placeholderTextColor={colors.textSecondary}
               value={newClass.course_name}
               onChangeText={(text) => setNewClass({ ...newClass, course_name: text })}
             />
@@ -215,6 +218,7 @@ const ScheduleScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Start Time (e.g., 09:00) *"
+              placeholderTextColor={colors.textSecondary}
               value={newClass.start_time}
               onChangeText={(text) => setNewClass({ ...newClass, start_time: text })}
             />
@@ -222,6 +226,7 @@ const ScheduleScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="End Time (e.g., 10:30) *"
+              placeholderTextColor={colors.textSecondary}
               value={newClass.end_time}
               onChangeText={(text) => setNewClass({ ...newClass, end_time: text })}
             />
@@ -229,6 +234,7 @@ const ScheduleScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Location (e.g., Room 101)"
+              placeholderTextColor={colors.textSecondary}
               value={newClass.location}
               onChangeText={(text) => setNewClass({ ...newClass, location: text })}
             />
@@ -236,6 +242,7 @@ const ScheduleScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Instructor Name"
+              placeholderTextColor={colors.textSecondary}
               value={newClass.instructor}
               onChangeText={(text) => setNewClass({ ...newClass, instructor: text })}
             />
@@ -319,14 +326,14 @@ const ScheduleScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+    backgroundColor: colors.surface, // DESIGN.md: Gray-50
   },
   scrollContent: {
     paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
@@ -336,21 +343,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: Spacing.md, // DESIGN.md: 16px
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
     fontWeight: Typography.h2.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
   },
   headerButtons: {
     flexDirection: 'row',
     gap: 10,
   },
   importButton: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
@@ -361,7 +368,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   addButton: {
-    backgroundColor: Colors.light.success, // DESIGN.md: Green
+    backgroundColor: colors.success, // DESIGN.md: Green
     width: 35,
     height: 35,
     borderRadius: 18,
@@ -374,10 +381,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   daySelector: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   dayButton: {
     paddingHorizontal: Spacing.lg, // DESIGN.md: 20px
@@ -386,11 +393,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   dayButtonActive: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
   },
   dayButtonText: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   dayButtonTextActive: {
@@ -403,12 +410,12 @@ const styles = StyleSheet.create({
   dayTitle: {
     fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
     fontWeight: Typography.h1.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
     marginBottom: Spacing.lg,
   },
   classCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderRadius: Components.card.borderRadius, // DESIGN.md: 8px
     marginBottom: 10,
     overflow: 'hidden',
@@ -427,23 +434,23 @@ const styles = StyleSheet.create({
   },
   classTime: {
     fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   className: {
     fontSize: Typography.body.fontSize, // DESIGN.md: 16px
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     marginBottom: 4,
   },
   classLocation: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 2,
   },
   classInstructor: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
@@ -451,11 +458,11 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: Typography.body.fontSize, // DESIGN.md: 16px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: Spacing.lg,
   },
   addClassButton: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
     paddingHorizontal: Spacing.lg,
     paddingVertical: 10,
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
@@ -470,17 +477,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: Spacing.md,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   formTitle: {
     fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
     fontWeight: Typography.h2.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
   },
   cancelText: {
-    color: Colors.light.error, // DESIGN.md: Red
+    color: colors.error, // DESIGN.md: Red
     fontSize: Typography.body.fontSize,
   },
   form: {
@@ -489,7 +496,7 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     marginBottom: 10,
   },
   daySelectButton: {
@@ -498,16 +505,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
   },
   daySelectButtonActive: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
-    borderColor: Colors.light.primary,
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
+    borderColor: colors.primary,
   },
   daySelectButtonText: {
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   daySelectButtonTextActive: {
@@ -515,17 +522,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   input: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: colors.border,
     borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
     paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
     paddingVertical: 12,
     marginBottom: Spacing.md,
     fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+    color: colors.text,
   },
   submitButton: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary, // DESIGN.md: Indigo
     paddingVertical: 15,
     borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
     alignItems: 'center',

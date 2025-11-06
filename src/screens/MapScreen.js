@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ROOM_DATABASE, FLOOR_NAMES } from '../utils/roomDatabase';
+import { ROOM_DATABASE, FLOOR_NAMES, CATEGORY_DATABASE } from '../utils/roomDatabase';
 import { Colors, Spacing, Typography, Components, RoomStates, Container } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -13,6 +13,32 @@ const FLOOR_IMAGES = [
   require('../../assets/pdf/SecondFloor.png'),
   require('../../assets/pdf/ThirdFloor.png'),
 ];
+
+// @param room: string
+function get_room_type(room) {
+  let r = Number.parseInt(room);
+  let floor;
+  if (room[0] === '1') {floor = FLOOR_NAMES[0]};
+  if (room[0] === '2') {floor = FLOOR_NAMES[1]};
+  if (room[0] === '3') {floor = FLOOR_NAMES[2]};
+
+  for (let category in CATEGORY_DATABASE) {
+    if (r in CATEGORY_DATABASE[floor][category]) {
+      return category;
+    }
+  }
+  return null;
+}
+
+// category can only be one of: ['staff', 'study-rooms', 'restrooms', 'class-rooms', 'facility']
+// floor must be an element of FLOOR_NAMES
+function get_rooms_of_type(category, floor) {
+  let string_rooms = CATEGORY_DATABASE[floor][category].copy();
+  string_rooms.map((value, index, array) => {
+    return value.toString();
+  });
+  return string_rooms;
+}
 
 const MapScreen = () => {
   const router = useRouter();

@@ -1,6 +1,63 @@
 // Complete CMUQ Room Database with coordinates (x, y as % of image dimensions)
 // Re-mapped with precision from H1 and H2 detailed floor images
 
+export const CATEGORY_DATABASE = {
+  'First Floor': {
+    'facility': {
+      rooms: [
+        1004, 1005, 1006, 1007, 1008, 1009, 1010,
+        1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021,
+        1024, 1025, 1026,
+        1036, 1037, 1038, 1039, 1040,
+        1077, 1078, 1079, 1080,
+        1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210, 1211,
+        1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181
+      ]
+    },
+    'class-rooms': {
+      rooms: [
+        1030, 1031, 1032,
+        1051,
+        1064,
+        1131,
+        1213,
+        1202,
+        1199,
+        1190,
+        1185,
+      ]
+    },
+    'restrooms': {
+      rooms: [
+        1045, 1046,
+        1218, 1220,
+        1144, 1142,
+        1112, 1113,
+      ]
+    },
+    'study-rooms': {
+      rooms: [
+        1170, 1171,
+        1155, 1154, 1153, 1152,
+        1161,
+        1087,
+        1021,
+      ]
+    },
+    'staff': {
+      rooms: [
+        1068, 1069, 1070, 1074, 1075, 1089, 1090, 1091, 1092, 1093, 1094, 1095, 1098, 1099,
+        1100, 1101, 1102, 1103, 1104, 1106, 1107,
+        1118, 1119, 1121, 1195, 1196,
+        1167, 1165,
+        1150, 1151,
+        1145,
+        1160,
+      ]
+    }
+  }
+}
+
 export const ROOM_DATABASE = {
   // ===== FIRST FLOOR =====
 
@@ -94,6 +151,8 @@ export const ROOM_DATABASE = {
   '1093': { floor: 'First Floor', image: 0, x: 65.71, y: 1.92 },
   '1094': { floor: 'First Floor', image: 0, x: 67.10, y: 1.56 },
   '1095': { floor: 'First Floor', image: 0, x: 68.50, y: 1.80 },
+  '1096': { floor: 'First Floor', image: 0, x: 58, y: 27 },
+  '1097': { floor: 'First Floor', image: 0, x: 61, y: 18 },
   '1098': { floor: 'First Floor', image: 0, x: 69.90, y: 3.97 },
   '1099': { floor: 'First Floor', image: 0, x: 71.21, y: 3.61 },
   '1100': { floor: 'First Floor', image: 0, x: 72.62, y: 3.85 },
@@ -227,7 +286,7 @@ export const ROOM_DATABASE = {
   '1138': { floor: 'First Floor', image: 0, x: 55, y: 45 },
   '1139': { floor: 'First Floor', image: 0, x: 58, y: 48 },
   '1135': { floor: 'First Floor', image: 0, x: 37, y: 37 },
-  
+
 
   // ===== SECOND FLOOR =====
   '2001': { floor: 'Second Floor', image: 1, x: 18.84, y: 4.35 },

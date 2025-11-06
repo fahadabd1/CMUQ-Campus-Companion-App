@@ -74,6 +74,54 @@ export const initDatabase = () => {
       }
     }
 
+    // Migration: Remove CHECK constraint from category column to accept any category
+    try {
+      // Check if the old constraint exists by trying to insert a non-standard category
+      const testCat = 'TestCategory_' + Date.now();
+      try {
+        db.runSync(`INSERT INTO events (title, category, start_time) VALUES (?, ?, ?)`,
+          ['__test__', testCat, new Date().toISOString()]);
+        db.runSync(`DELETE FROM events WHERE title = ?`, ['__test__']);
+        console.log('✓ Category constraint already removed or not present');
+      } catch (testError) {
+        if (testError.message.includes('CHECK constraint failed')) {
+          console.log('Removing category CHECK constraint...');
+
+          // Recreate the table without the constraint
+          db.execSync(`
+            -- Create new table without constraint
+            CREATE TABLE events_new (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              title TEXT NOT NULL,
+              description TEXT,
+              category TEXT,
+              location TEXT,
+              start_time TEXT NOT NULL,
+              end_time TEXT,
+              link TEXT,
+              source TEXT DEFAULT 'manual',
+              created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+
+            -- Copy data from old table to new
+            INSERT INTO events_new (id, title, description, category, location, start_time, end_time, link, source, created_at)
+            SELECT id, title, description, category, location, start_time, end_time, link, source, created_at
+            FROM events;
+
+            -- Drop old table
+            DROP TABLE events;
+
+            -- Rename new table
+            ALTER TABLE events_new RENAME TO events;
+          `);
+
+          console.log('✓ Removed category CHECK constraint from events table');
+        }
+      }
+    } catch (error) {
+      console.error('Error during category constraint migration:', error);
+    }
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);

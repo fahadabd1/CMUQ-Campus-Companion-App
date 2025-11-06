@@ -1,10 +1,10 @@
-import { DarkTheme, DefaultTheme, ThemeProvider, Theme } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, Theme } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { initDatabase } from '@/src/database/database';
 import { Colors } from '@/constants/theme';
 
@@ -39,25 +39,35 @@ const CustomDarkTheme: Theme = {
   },
 };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootLayoutNav() {
+  const { colorScheme } = useTheme();
 
+  return (
+    <NavigationThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : LightTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="map" options={{ headerShown: false, title: 'Campus Map' }} />
+        <Stack.Screen name="event-details" options={{ headerShown: false, title: 'Event Details' }} />
+        <Stack.Screen name="all-events" options={{ headerShown: false, title: 'All Events' }} />
+        <Stack.Screen name="privacy-policy" options={{ headerShown: false, title: 'Privacy Policy' }} />
+        <Stack.Screen name="terms-of-service" options={{ headerShown: false, title: 'Terms of Service' }} />
+        <Stack.Screen name="help-faq" options={{ headerShown: false, title: 'Help & FAQ' }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+      </Stack>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+    </NavigationThemeProvider>
+  );
+}
+
+export default function RootLayout() {
   useEffect(() => {
     // Initialize database on app start
     initDatabase();
   }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : LightTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="map" options={{ headerShown: false, title: 'Campus Map' }} />
-        <Stack.Screen name="privacy-policy" options={{ headerShown: false, title: 'Privacy Policy' }} />
-        <Stack.Screen name="terms-of-service" options={{ headerShown: false, title: 'Terms of Service' }} />
-        <Stack.Screen name="help-faq" options={{ headerShown: false, title: 'Help & FAQ' }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
+    <ThemeProvider>
+      <RootLayoutNav />
     </ThemeProvider>
   );
 }

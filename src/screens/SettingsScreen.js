@@ -14,20 +14,23 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import db from '../database/database';
 import { Colors, Spacing, Typography, Components, TouchTargets, Container } from '../../constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const SettingsScreen = () => {
   const router = useRouter();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [showBugReportForm, setShowBugReportForm] = useState(false);
   const [bugReport, setBugReport] = useState({
     title: '',
     description: '',
     steps: ''
   });
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { colorScheme, isDark, setThemePreference } = useTheme();
+  const colors = Colors[colorScheme];
+
+  const handleDarkModeToggle = (value) => {
+    setThemePreference(value ? 'dark' : 'light');
+  };
 
   const handleClearData = () => {
     Alert.alert(
@@ -93,6 +96,8 @@ const SettingsScreen = () => {
     );
   };
 
+  const styles = createStyles(colors);
+
   if (showBugReportForm) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -112,6 +117,7 @@ const SettingsScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Bug Title *"
+              placeholderTextColor={colors.textSecondary}
               value={bugReport.title}
               onChangeText={(text) => setBugReport({ ...bugReport, title: text })}
             />
@@ -119,6 +125,7 @@ const SettingsScreen = () => {
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Bug Description *"
+              placeholderTextColor={colors.textSecondary}
               value={bugReport.description}
               onChangeText={(text) => setBugReport({ ...bugReport, description: text })}
               multiline
@@ -129,6 +136,7 @@ const SettingsScreen = () => {
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Steps to Reproduce (Optional)"
+              placeholderTextColor={colors.textSecondary}
               value={bugReport.steps}
               onChangeText={(text) => setBugReport({ ...bugReport, steps: text })}
               multiline
@@ -174,14 +182,14 @@ const SettingsScreen = () => {
           <View style={styles.settingInfo}>
             <Text style={styles.settingLabel}>Dark Mode</Text>
             <Text style={styles.settingDescription}>
-              Enable dark theme (coming soon)
+              Enable dark theme across the app
             </Text>
           </View>
           <Switch
-            value={darkMode}
-            onValueChange={setDarkMode}
+            value={isDark}
+            onValueChange={handleDarkModeToggle}
             trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
-            thumbColor={darkMode ? '#3B82F6' : '#F3F4F6'}
+            thumbColor={isDark ? '#3B82F6' : '#F3F4F6'}
           />
         </View>
       </View>
@@ -255,39 +263,39 @@ const SettingsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface, // DESIGN.md: Gray-50
+    backgroundColor: colors.surface,
   },
   scrollContent: {
     paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
   },
   header: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
-    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
+    fontSize: Typography.h1.fontSize,
     fontWeight: Typography.h1.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
   },
   section: {
-    marginTop: Spacing.lg, // DESIGN.md: 20px
+    marginTop: Spacing.lg,
     paddingHorizontal: Spacing.md,
   },
   sectionTitle: {
-    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px uppercase
+    fontSize: Typography.caption.fontSize,
     fontWeight: '600',
-    color: Colors.light.textSecondary, // DESIGN.md: Gray-600
+    color: colors.textSecondary,
     marginBottom: 10,
-    marginTop: Spacing.md, // DESIGN.md: 16px top margin
+    marginTop: Spacing.md,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -295,9 +303,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.md,
-    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    minHeight: TouchTargets.recommended,
     borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
@@ -306,33 +314,33 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   settingLabel: {
-    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    fontSize: Typography.body.fontSize,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   actionButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.md,
-    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    minHeight: TouchTargets.recommended,
     borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   actionButtonText: {
-    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
-    color: Colors.light.text,
+    fontSize: Typography.body.fontSize,
+    color: colors.text,
     fontWeight: '500',
   },
   actionButtonIcon: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   dangerButton: {
     borderWidth: 1,
@@ -340,26 +348,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   dangerText: {
-    color: Colors.light.error, // DESIGN.md: Red
+    color: colors.error,
   },
   infoCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.md,
-    minHeight: TouchTargets.recommended, // DESIGN.md: 48px minimum height
+    minHeight: TouchTargets.recommended,
     borderRadius: Components.card.borderRadius,
     marginBottom: 10,
   },
   infoLabel: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   infoValue: {
     fontSize: Typography.body.fontSize,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
   },
   footer: {
     alignItems: 'center',
@@ -367,30 +375,30 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
   },
   footerText: {
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
-    color: Colors.light.textSecondary,
+    fontSize: Typography.small.fontSize,
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   footerSubtext: {
-    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
-    color: Colors.light.textSecondary,
+    fontSize: Typography.caption.fontSize,
+    color: colors.textSecondary,
   },
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: Spacing.md,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: colors.border,
   },
   formTitle: {
-    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontSize: Typography.h2.fontSize,
     fontWeight: Typography.h2.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
   },
   cancelText: {
-    color: Colors.light.error, // DESIGN.md: Red
+    color: colors.error,
     fontSize: Typography.body.fontSize,
   },
   form: {
@@ -398,36 +406,37 @@ const styles = StyleSheet.create({
   },
   formDescription: {
     fontSize: Typography.small.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: Spacing.lg,
     lineHeight: Typography.small.lineHeight,
   },
   input: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
-    paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
+    borderColor: colors.border,
+    borderRadius: Components.input.borderRadius,
+    paddingHorizontal: Components.input.paddingHorizontal,
     paddingVertical: 12,
     marginBottom: Spacing.md,
-    fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+    fontSize: Components.input.fontSize,
+    color: colors.text,
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: 'top',
   },
   submitButton: {
-    backgroundColor: Colors.light.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary,
     paddingVertical: 15,
-    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
+    borderRadius: Components.button.borderRadius,
     alignItems: 'center',
-    height: Components.button.height, // DESIGN.md: 48px
+    height: Components.button.height,
     justifyContent: 'center',
     marginTop: Spacing.md,
   },
   submitButtonText: {
     color: 'white',
-    fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    fontSize: Typography.body.fontSize,
     fontWeight: '600',
   },
 });

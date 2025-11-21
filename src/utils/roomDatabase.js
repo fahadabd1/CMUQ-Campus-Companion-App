@@ -41,7 +41,6 @@ export const CATEGORY_DATABASE = {
         1155, 1154, 1153, 1152,
         1161,
         1087,
-        1021,
       ]
     },
     'staff': {
@@ -83,7 +82,7 @@ export const ROOM_DATABASE = {
   '1018': { floor: 'First Floor', image: 0, x: 16.89, y: 17.31 },
   '1019': { floor: 'First Floor', image: 0, x: 16.89, y: 19.59 },
   '1020': { floor: 'First Floor', image: 0, x: 16.89, y: 21.39 },
-  '1021': { floor: 'First Floor', image: 0, x: 7, y: 31 },
+  '1021': { floor: 'First Floor', image: 0, x: 20, y: 27 },
   '1022': { floor: 'First Floor', image: 0, x: 17.15, y: 26.20 },
   '1023': { floor: 'First Floor', image: 0, x: 17.15, y: 28.00 },
   '1024': { floor: 'First Floor', image: 0, x: 19.25, y: 26.92 },

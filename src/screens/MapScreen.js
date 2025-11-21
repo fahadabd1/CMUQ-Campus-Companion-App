@@ -40,13 +40,42 @@ function get_rooms_of_type(category, floor) {
   return string_rooms;
 }
 
+const CATEGORIES = [
+  { key: 'all', label: 'All' },
+  { key: 'facility', label: 'Facilities' },
+  { key: 'class-rooms', label: 'Classrooms' },
+  { key: 'restrooms', label: 'Restrooms' },
+  { key: 'study-rooms', label: 'Study Rooms' },
+  { key: 'staff', label: 'Staff Offices' },
+];
+
 const MapScreen = () => {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
   const [currentFloor, setCurrentFloor] = useState(0);
   const [foundRoom, setFoundRoom] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+
+  // Get rooms for selected category (First Floor only)
+  const getCategoryRooms = () => {
+    if (selectedCategory === 'all' || currentFloor !== 0) return [];
+    const categoryData = CATEGORY_DATABASE['First Floor']?.[selectedCategory];
+    if (!categoryData?.rooms) return [];
+
+    return categoryData.rooms
+      .map(roomNum => {
+        const roomData = ROOM_DATABASE[roomNum.toString()];
+        if (roomData && roomData.image === 0) {
+          return { ...roomData, roomNumber: roomNum.toString() };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  };
+
+  const categoryRooms = getCategoryRooms();
 
   const handleSearch = () => {
     const roomNumber = searchText.trim();
@@ -95,6 +124,34 @@ const MapScreen = () => {
 
       {foundRoom && <View style={styles.info}><Text style={styles.infoText}>📍 Room {searchText} - {foundRoom.floor}</Text></View>}
 
+      {/* Category Filter - First Floor Only */}
+      {currentFloor === 0 && (
+        <View style={styles.categoryContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
+            {CATEGORIES.map((cat) => (
+              <TouchableOpacity
+                key={cat.key}
+                style={[styles.categoryBtn, selectedCategory === cat.key && styles.categoryBtnActive]}
+                onPress={() => setSelectedCategory(cat.key)}
+              >
+                <Text style={[styles.categoryText, selectedCategory === cat.key && styles.categoryTextActive]}>
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* Category info banner */}
+      {selectedCategory !== 'all' && currentFloor === 0 && categoryRooms.length > 0 && (
+        <View style={styles.categoryInfo}>
+          <Text style={styles.categoryInfoText}>
+            🏷️ {categoryRooms.length} {CATEGORIES.find(c => c.key === selectedCategory)?.label} on First Floor
+          </Text>
+        </View>
+      )}
+
       <View style={styles.tabs}>
         {FLOOR_NAMES.map((name, i) => (
           <TouchableOpacity key={i} style={[styles.tab, currentFloor === i && styles.tabActive]} onPress={() => setCurrentFloor(i)}>
@@ -106,6 +163,16 @@ const MapScreen = () => {
       <ScrollView style={styles.map} contentContainerStyle={styles.scrollContent}>
         <View style={styles.mapWrapper}>
           <Image source={FLOOR_IMAGES[currentFloor]} style={styles.img} resizeMode="contain" />
+          {/* Category markers (blue) */}
+          {categoryRooms.map((room) => (
+            <View
+              key={room.roomNumber}
+              style={[styles.categoryMarker, { left: `${room.x}%`, top: `${room.y}%` }]}
+            >
+              <View style={styles.categoryPulse} />
+            </View>
+          ))}
+          {/* Search result marker (red) */}
           {foundRoom && foundRoom.image === currentFloor && foundRoom.x && foundRoom.y && (
             <View style={[styles.marker, { left: `${foundRoom.x}%`, top: `${foundRoom.y}%` }]}>
               <View style={styles.pulse} />
@@ -247,6 +314,65 @@ const createStyles = (colors) => StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.5)',
     borderWidth: 3,
     borderColor: RoomStates.occupied // DESIGN.md: Red for occupied rooms
+  },
+  // Category Filter Styles
+  categoryContainer: {
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingVertical: 8,
+  },
+  categoryScroll: {
+    paddingHorizontal: Spacing.md,
+    gap: 8,
+  },
+  categoryBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  categoryBtnActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  categoryText: {
+    fontSize: Typography.small.fontSize,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  categoryTextActive: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  categoryInfo: {
+    backgroundColor: colors.primary,
+    padding: 10,
+    alignItems: 'center',
+  },
+  categoryInfoText: {
+    color: 'white',
+    fontSize: Typography.small.fontSize,
+    fontWeight: '600',
+  },
+  categoryMarker: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    marginLeft: -10,
+    marginTop: -10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryPulse: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+    borderWidth: 2,
+    borderColor: '#3B82F6', // Blue for category markers
   },
 });
 

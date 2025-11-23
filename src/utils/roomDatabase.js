@@ -373,6 +373,7 @@ export const ROOM_DATABASE = {
   '2057': { floor: 'Second Floor', image: 1, x: 52.36, y: 18.24 },
   '2058': { floor: 'Second Floor', image: 1, x: 56.44, y: 18.12 },
   '2059': { floor: 'Second Floor', image: 1, x: 55.46, y: 12.12 },
+  '2087': { floor: 'Second Floor', image: 1, x: 76.85, y: 25 },
   '2088': { floor: 'Second Floor', image: 1, x: 77.39, y: 10.00 },
   '2089': { floor: 'Second Floor', image: 1, x: 78.78, y: 9.29 },
   '2090': { floor: 'Second Floor', image: 1, x: 76.85, y: 35 },

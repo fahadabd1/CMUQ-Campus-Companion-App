@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, ScrollView, Image, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ROOM_DATABASE, FLOOR_NAMES, CATEGORY_DATABASE } from '../utils/roomDatabase';
@@ -99,6 +99,7 @@ const MapScreen = () => {
 
     const room = ROOM_DATABASE[roomNumber];
     if (room) {
+      Keyboard.dismiss(); // Hide keyboard for better map visibility
       setFoundRoom(room);
       setCurrentFloor(room.image);
     } else {
@@ -187,7 +188,21 @@ const MapScreen = () => {
         ))}
       </View>
 
-      <ScrollView style={styles.map} contentContainerStyle={styles.scrollContent}>
+      {/* Zoom hint */}
+      <View style={styles.zoomHint}>
+        <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
+      </View>
+
+      <ScrollView
+        style={styles.map}
+        contentContainerStyle={styles.mapScrollContent}
+        maximumZoomScale={4}
+        minimumZoomScale={1}
+        bouncesZoom={true}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        centerContent={true}
+      >
         <View style={styles.mapWrapper}>
           <Image source={FLOOR_IMAGES[currentFloor]} style={styles.img} resizeMode="contain" />
           {/* Category markers (blue) */}
@@ -311,14 +326,30 @@ const createStyles = (colors) => StyleSheet.create({
     color: colors.primary, // DESIGN.md: Indigo
     fontWeight: '700'
   },
+  zoomHint: {
+    backgroundColor: colors.background,
+    paddingVertical: 6,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  zoomHintText: {
+    fontSize: Typography.caption.fontSize,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+  },
   map: {
     flex: 1,
     backgroundColor: colors.border
   },
+  mapScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   mapWrapper: {
-    width: width - 20,
-    height: (width - 20) * 0.7,
-    margin: 10,
+    width: width,
+    height: width * 0.75,
     position: 'relative'
   },
   img: {

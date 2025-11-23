@@ -80,7 +80,20 @@ const MapScreen = () => {
   const handleSearch = () => {
     const roomNumber = searchText.trim();
     if (!roomNumber) {
-      Alert.alert('Error', 'Please enter a room number');
+      Alert.alert(
+        'No Room Number',
+        'Please enter a room number to search.\n\nExamples:\n• 1051 (First Floor)\n• 2034 (Second Floor)\n• 3001 (Third Floor)\n\nOr use the category filters below to browse rooms.',
+        [
+          {
+            text: 'Try Again',
+            style: 'cancel'
+          },
+          {
+            text: 'OK',
+            style: 'default'
+          }
+        ]
+      );
       return;
     }
 
@@ -90,7 +103,21 @@ const MapScreen = () => {
       setCurrentFloor(room.image);
     } else {
       setFoundRoom(null);
-      Alert.alert('Not Found', `Room ${roomNumber} not found`);
+      Alert.alert(
+        'Room Not Found',
+        `Room "${roomNumber}" could not be found.\n\nTips:\n• Check the room number format (e.g., 1051, 2034, 3001)\n• First digit indicates the floor (1=First, 2=Second, 3=Third)\n• Try browsing by category using the filters below`,
+        [
+          {
+            text: 'Retry',
+            onPress: () => setSearchText(''),
+            style: 'cancel'
+          },
+          {
+            text: 'OK',
+            style: 'default'
+          }
+        ]
+      );
     }
   };
 

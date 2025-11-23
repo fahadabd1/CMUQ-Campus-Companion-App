@@ -50,6 +50,12 @@ export const initDatabase = () => {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS favorite_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id INTEGER NOT NULL UNIQUE,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     // Migration: Add 'source' column to events table if it doesn't exist

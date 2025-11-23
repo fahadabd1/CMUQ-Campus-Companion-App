@@ -126,17 +126,18 @@ export const syncEventsToLocal = async (db) => {
       return;
     }
 
-    // Clear existing events (optional - or implement smart merge)
+    // Clear existing API events
     db.runSync('DELETE FROM events WHERE source = ?', ['api']);
 
-    // Insert events into local database
+    // Insert events into local database with server ID preserved
     const insertStmt = db.prepareSync(
-      `INSERT INTO events (title, description, category, location, start_time, end_time, link, source)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT OR REPLACE INTO events (id, title, description, category, location, start_time, end_time, link, source)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     );
 
     events.forEach((event) => {
       insertStmt.executeSync([
+        event.id, // Preserve server ID for favorite_events matching
         event.title,
         event.description || '',
         event.category || 'Other',
@@ -150,9 +151,35 @@ export const syncEventsToLocal = async (db) => {
 
     insertStmt.finalizeSync();
 
+    // Cleanup: Remove favorites for events that have passed
+    cleanupExpiredFavorites(db);
+
     console.log(`✓ Synced ${events.length} events to local database`);
   } catch (error) {
     console.error('Error syncing events:', error);
+  }
+};
+
+/**
+ * Remove favorites for events that have already passed
+ */
+export const cleanupExpiredFavorites = (db) => {
+  try {
+    const now = new Date().toISOString();
+
+    // Delete favorites where the event's start_time has passed
+    db.runSync(
+      `DELETE FROM favorite_events
+       WHERE event_id IN (
+         SELECT e.id FROM events e
+         WHERE datetime(e.start_time) < datetime(?)
+       )`,
+      [now]
+    );
+
+    console.log('✓ Cleaned up expired favorites');
+  } catch (error) {
+    console.error('Error cleaning up expired favorites:', error);
   }
 };
 
@@ -248,6 +275,27 @@ export const lostFoundAPI = {
   },
 
   /**
+   * Update item status (lost -> found, or mark as claimed)
+   * @param {number} id - Item ID
+   * @param {string} newStatus - New status ('found', 'claimed')
+   */
+  updateStatus: async (id, newStatus) => {
+    try {
+      const response = await apiFetch(`/lost-found/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          type: newStatus === 'claimed' ? undefined : newStatus,
+          status: newStatus === 'claimed' ? 'claimed' : 'active'
+        }),
+      });
+      return response.data || null;
+    } catch (error) {
+      console.error('Error updating item status:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Delete item
    * @param {number} id - Item ID
    */
@@ -322,14 +370,15 @@ export const syncLostFoundToLocal = async (db) => {
     // Clear existing items from API source
     db.runSync('DELETE FROM lost_found WHERE 1=1'); // Clear all for full sync
 
-    // Insert items into local database
+    // Insert items into local database (include server_id for updates)
     const insertStmt = db.prepareSync(
-      `INSERT INTO lost_found (type, item_name, description, category, location_lost, image_path, contact_info, status, created_at, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO lost_found (id, type, item_name, description, category, location_lost, image_path, contact_info, status, created_at, expires_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     );
 
     items.forEach((item) => {
       insertStmt.executeSync([
+        item.id, // Use server ID as local ID for sync
         item.type,
         item.item_name,
         item.description || '',

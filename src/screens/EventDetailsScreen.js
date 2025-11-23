@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,15 +10,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import db from '../database/database';
 import { Colors, Spacing, Typography, Components } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const EventDetailsScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   // Parse the event data from params
   const event = {
-    id: params.id,
+    id: parseInt(params.id),
     title: params.title,
     description: params.description,
     category: params.category,
@@ -26,6 +31,36 @@ const EventDetailsScreen = () => {
     start_time: params.start_time,
     end_time: params.end_time,
     link: params.link,
+  };
+
+  useEffect(() => {
+    checkIfFavorite();
+  }, []);
+
+  const checkIfFavorite = () => {
+    try {
+      const result = db.getAllSync(
+        'SELECT * FROM favorite_events WHERE event_id = ?',
+        [event.id]
+      );
+      setIsFavorite(result.length > 0);
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+    }
+  };
+
+  const toggleFavorite = () => {
+    try {
+      if (isFavorite) {
+        db.runSync('DELETE FROM favorite_events WHERE event_id = ?', [event.id]);
+        setIsFavorite(false);
+      } else {
+        db.runSync('INSERT INTO favorite_events (event_id) VALUES (?)', [event.id]);
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const handleLinkPress = async () => {
@@ -45,10 +80,10 @@ const EventDetailsScreen = () => {
 
   const getCategoryColor = (category) => {
     const categoryColors = {
-      'Academic': Colors.light.info,
-      'Student Life': Colors.light.success,
-      'Sports': Colors.light.warning,
-      'Other': Colors.light.textSecondary
+      'Academic': colors.info,
+      'Student Life': colors.success,
+      'Sports': colors.warning,
+      'Other': colors.textSecondary
     };
     return categoryColors[category] || categoryColors['Other'];
   };
@@ -71,6 +106,8 @@ const EventDetailsScreen = () => {
     });
   };
 
+  const styles = createStyles(colors);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.header}>
@@ -78,6 +115,9 @@ const EventDetailsScreen = () => {
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Event Details</Text>
+        <TouchableOpacity onPress={toggleFavorite} style={styles.starButton}>
+          <Text style={styles.starIcon}>{isFavorite ? '★' : '☆'}</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.container}>
@@ -92,7 +132,7 @@ const EventDetailsScreen = () => {
 
           {/* Date & Time Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>📅 Date & Time</Text>
+            <Text style={styles.sectionLabel}>Date & Time</Text>
             <View style={styles.infoCard}>
               <Text style={styles.infoText}>{formatDate(event.start_time)}</Text>
               <Text style={styles.infoSubtext}>
@@ -104,7 +144,7 @@ const EventDetailsScreen = () => {
 
           {/* Location Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>📍 Location</Text>
+            <Text style={styles.sectionLabel}>Location</Text>
             <View style={styles.infoCard}>
               <Text style={styles.infoText}>{event.location || 'TBD'}</Text>
             </View>
@@ -113,7 +153,7 @@ const EventDetailsScreen = () => {
           {/* Description Section */}
           {event.description && (
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>📝 Description</Text>
+              <Text style={styles.sectionLabel}>Description</Text>
               <View style={styles.infoCard}>
                 <Text style={styles.descriptionText}>{event.description}</Text>
               </View>
@@ -123,7 +163,7 @@ const EventDetailsScreen = () => {
           {/* Link Section */}
           {event.link && (
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>🔗 Link</Text>
+              <Text style={styles.sectionLabel}>Link</Text>
               <TouchableOpacity style={styles.linkButton} onPress={handleLinkPress}>
                 <Text style={styles.linkText}>{event.link}</Text>
                 <Text style={styles.linkArrow}>→</Text>
@@ -136,19 +176,20 @@ const EventDetailsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: colors.primary,
   },
   header: {
-    backgroundColor: Colors.light.primary,
+    backgroundColor: colors.primary,
     padding: Spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backButton: {
-    marginRight: Spacing.md,
+    flex: 1,
   },
   backButtonText: {
     color: 'white',
@@ -159,10 +200,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: Typography.h2.fontSize,
     fontWeight: Typography.h2.fontWeight,
+    flex: 2,
+    textAlign: 'center',
+  },
+  starButton: {
+    flex: 1,
+    alignItems: 'flex-end',
+    padding: 4,
+  },
+  starIcon: {
+    fontSize: 26,
+    color: '#F59E0B', // Amber/gold color for stars
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: colors.surface,
   },
   content: {
     padding: Spacing.lg,
@@ -182,7 +234,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Typography.h1.fontSize,
     fontWeight: Typography.h1.fontWeight,
-    color: Colors.light.text,
+    color: colors.text,
     marginBottom: Spacing.xl,
   },
   section: {
@@ -191,11 +243,11 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: Typography.h3.fontSize,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     marginBottom: Spacing.sm,
   },
   infoCard: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.lg,
     borderRadius: Components.card.borderRadius,
     shadowColor: '#000',
@@ -206,21 +258,21 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.text,
+    color: colors.text,
     fontWeight: '600',
     marginBottom: 4,
   },
   infoSubtext: {
     fontSize: Typography.small.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   descriptionText: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.text,
+    color: colors.text,
     lineHeight: 24,
   },
   linkButton: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.lg,
     borderRadius: Components.card.borderRadius,
     flexDirection: 'row',
@@ -234,13 +286,13 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.primary,
+    color: colors.primary,
     fontWeight: '600',
     flex: 1,
   },
   linkArrow: {
     fontSize: Typography.body.fontSize,
-    color: Colors.light.primary,
+    color: colors.primary,
     fontWeight: '600',
     marginLeft: Spacing.sm,
   },

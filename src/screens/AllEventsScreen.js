@@ -12,17 +12,55 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import db from '../database/database';
 import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { eventsAPI, syncEventsToLocal } from '../services/api';
 
 const AllEventsScreen = () => {
   const [events, setEvents] = useState([]);
+  const [favorites, setFavorites] = useState(new Set());
+  const [activeTab, setActiveTab] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
   useEffect(() => {
+    loadFavorites();
     loadEvents();
   }, []);
+
+  // Load favorite event IDs from local database
+  const loadFavorites = () => {
+    try {
+      const result = db.getAllSync('SELECT event_id FROM favorite_events');
+      const favoriteIds = new Set(result.map(row => row.event_id));
+      setFavorites(favoriteIds);
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  // Toggle favorite status for an event
+  const toggleFavorite = (eventId) => {
+    try {
+      if (favorites.has(eventId)) {
+        // Remove from favorites
+        db.runSync('DELETE FROM favorite_events WHERE event_id = ?', [eventId]);
+        setFavorites(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(eventId);
+          return newSet;
+        });
+      } else {
+        // Add to favorites
+        db.runSync('INSERT INTO favorite_events (event_id) VALUES (?)', [eventId]);
+        setFavorites(prev => new Set([...prev, eventId]));
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
 
   const loadEvents = async () => {
     try {
@@ -64,6 +102,7 @@ const AllEventsScreen = () => {
     setRefreshing(true);
     try {
       await loadEventsFromAPI();
+      loadFavorites();
     } catch (error) {
       loadEventsFromLocal();
     }
@@ -88,13 +127,20 @@ const AllEventsScreen = () => {
 
   const getCategoryColor = (category) => {
     const categoryColors = {
-      'Academic': Colors.light.info,
-      'Student Life': Colors.light.success,
-      'Sports': Colors.light.warning,
-      'Other': Colors.light.textSecondary
+      'Academic': colors.info,
+      'Student Life': colors.success,
+      'Sports': colors.warning,
+      'Other': colors.textSecondary
     };
     return categoryColors[category] || categoryColors['Other'];
   };
+
+  // Filter events based on active tab
+  const filteredEvents = activeTab === 'favorites'
+    ? events.filter(event => favorites.has(event.id))
+    : events;
+
+  const styles = createStyles(colors);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -103,6 +149,26 @@ const AllEventsScreen = () => {
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Events</Text>
+      </View>
+
+      {/* Tabs */}
+      <View style={styles.tabs}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'all' && styles.tabActive]}
+          onPress={() => setActiveTab('all')}
+        >
+          <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>
+            All Events
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'favorites' && styles.tabActive]}
+          onPress={() => setActiveTab('favorites')}
+        >
+          <Text style={[styles.tabText, activeTab === 'favorites' && styles.tabTextActive]}>
+            Starred ({favorites.size})
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -114,16 +180,20 @@ const AllEventsScreen = () => {
       >
         <View style={styles.content}>
           <Text style={styles.subtitle}>
-            {events.length} upcoming event{events.length !== 1 ? 's' : ''}
+            {filteredEvents.length} {activeTab === 'favorites' ? 'starred' : 'upcoming'} event{filteredEvents.length !== 1 ? 's' : ''}
             {!isOnline && ' (Offline Mode)'}
           </Text>
 
-          {events.length === 0 ? (
+          {filteredEvents.length === 0 ? (
             <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>No upcoming events</Text>
+              <Text style={styles.emptyText}>
+                {activeTab === 'favorites'
+                  ? 'No starred events yet. Tap the star icon to save events!'
+                  : 'No upcoming events'}
+              </Text>
             </View>
           ) : (
-            events.map((event) => (
+            filteredEvents.map((event) => (
               <TouchableOpacity
                 key={event.id}
                 style={styles.eventCard}
@@ -131,8 +201,21 @@ const AllEventsScreen = () => {
               >
                 <View style={styles.eventHeader}>
                   <Text style={styles.eventTitle}>{event.title}</Text>
-                  <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(event.category) }]}>
-                    <Text style={styles.categoryText}>{event.category}</Text>
+                  <View style={styles.headerActions}>
+                    <TouchableOpacity
+                      style={styles.starButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(event.id);
+                      }}
+                    >
+                      <Text style={styles.starIcon}>
+                        {favorites.has(event.id) ? '★' : '☆'}
+                      </Text>
+                    </TouchableOpacity>
+                    <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(event.category) }]}>
+                      <Text style={styles.categoryText}>{event.category}</Text>
+                    </View>
                   </View>
                 </View>
                 <Text style={styles.eventTime}>
@@ -155,13 +238,13 @@ const AllEventsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: colors.primary,
   },
   header: {
-    backgroundColor: Colors.light.primary,
+    backgroundColor: colors.primary,
     padding: Spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
@@ -179,9 +262,33 @@ const styles = StyleSheet.create({
     fontSize: Typography.h2.fontSize,
     fontWeight: Typography.h2.fontWeight,
   },
+  tabs: {
+    flexDirection: 'row',
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  tabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary,
+  },
+  tabText: {
+    fontSize: Typography.small.fontSize,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
   container: {
     flex: 1,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: colors.surface,
   },
   scrollContent: {
     paddingBottom: Container.bottomNavClearance,
@@ -191,11 +298,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: Typography.small.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: Spacing.lg,
   },
   eventCard: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Components.card.padding,
     borderRadius: Components.card.borderRadius,
     marginBottom: Spacing.md,
@@ -214,14 +321,25 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: Typography.body.fontSize,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: colors.text,
     flex: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  starButton: {
+    padding: 4,
+  },
+  starIcon: {
+    fontSize: 22,
+    color: '#F59E0B', // Amber/gold color for stars
   },
   categoryBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    marginLeft: 10,
   },
   categoryText: {
     color: 'white',
@@ -230,22 +348,23 @@ const styles = StyleSheet.create({
   },
   eventTime: {
     fontSize: Typography.small.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   eventLocation: {
     fontSize: Typography.small.fontSize,
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
   },
   emptyCard: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.background,
     padding: Spacing.lg,
     borderRadius: Components.card.borderRadius,
     alignItems: 'center',
   },
   emptyText: {
-    color: Colors.light.textSecondary,
+    color: colors.textSecondary,
     fontSize: Typography.small.fontSize,
+    textAlign: 'center',
   },
 });
 

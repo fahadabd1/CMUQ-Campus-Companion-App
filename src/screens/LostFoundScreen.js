@@ -23,6 +23,7 @@ const LostFoundScreen = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [updatingItem, setUpdatingItem] = useState(null); // Track which item is being updated
   const [newItem, setNewItem] = useState({
     type: 'lost',
     item_name: '',
@@ -33,6 +34,58 @@ const LostFoundScreen = () => {
   });
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+
+  // Handle marking item as found (moves from Lost to Found)
+  // Workaround: Delete the lost item and create a new one as found
+  const handleMarkAsFound = async (item) => {
+    Alert.alert(
+      'Mark as Found',
+      'This will move the item to Found Items. All users will see this update.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            setUpdatingItem(item.id);
+            try {
+              // Step 1: Delete the original lost item
+              console.log('Deleting lost item:', item.id);
+              await lostFoundAPI.delete(item.id);
+
+              // Step 2: Create a new item with type 'found'
+              const newFoundItem = {
+                type: 'found',
+                item_name: item.item_name,
+                description: item.description || '',
+                category: item.category || 'Other',
+                location_lost: item.location_lost || '',
+                contact_info: item.contact_info || '',
+                image_url: item.image_path || null
+              };
+
+              console.log('Creating found item:', newFoundItem);
+              await lostFoundAPI.create(newFoundItem);
+
+              // Sync from API to get updated data
+              await syncFromAPI();
+
+              // Reload local data
+              loadFromLocal();
+
+              Alert.alert('Success', 'Item moved to Found Items!');
+              // Switch to Found tab to show the new item
+              setActiveTab('found');
+            } catch (error) {
+              console.error('Error moving item to found:', error);
+              Alert.alert('Error', 'Failed to update item. Please try again.');
+            } finally {
+              setUpdatingItem(null);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   useEffect(() => {
     loadItems();
@@ -65,11 +118,15 @@ const LostFoundScreen = () => {
 
   const loadFromLocal = () => {
     try {
-      let query = 'SELECT * FROM lost_found WHERE status = "active"';
+      let query = 'SELECT * FROM lost_found';
       const params = [];
 
-      if (activeTab !== 'all') {
-        query += ' AND type = ?';
+      if (activeTab === 'all') {
+        // Show all items
+        query += ' WHERE 1=1';
+      } else {
+        // Show lost or found items
+        query += ' WHERE type = ?';
         params.push(activeTab);
       }
 
@@ -289,7 +346,7 @@ const LostFoundScreen = () => {
           onPress={() => setActiveTab('all')}
         >
           <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>
-            All ({items.length})
+            All
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -297,7 +354,7 @@ const LostFoundScreen = () => {
           onPress={() => setActiveTab('lost')}
         >
           <Text style={[styles.tabText, activeTab === 'lost' && styles.tabTextActive]}>
-            Lost Items
+            Lost
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -305,7 +362,7 @@ const LostFoundScreen = () => {
           onPress={() => setActiveTab('found')}
         >
           <Text style={[styles.tabText, activeTab === 'found' && styles.tabTextActive]}>
-            Found Items
+            Found
           </Text>
         </TouchableOpacity>
       </View>
@@ -330,8 +387,13 @@ const LostFoundScreen = () => {
               <View style={styles.itemContent}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemName}>{item.item_name}</Text>
-                  <View style={[styles.typeBadge, item.type === 'lost' ? styles.lostBadge : styles.foundBadge]}>
-                    <Text style={styles.typeBadgeText}>{item.type.toUpperCase()}</Text>
+                  <View style={[
+                    styles.typeBadge,
+                    item.type === 'lost' ? styles.lostBadge : styles.foundBadge
+                  ]}>
+                    <Text style={styles.typeBadgeText}>
+                      {item.type.toUpperCase()}
+                    </Text>
                   </View>
                 </View>
                 <Text style={styles.itemDescription} numberOfLines={2}>
@@ -340,9 +402,23 @@ const LostFoundScreen = () => {
                 {item.location_lost && (
                   <Text style={styles.itemLocation}>📍 {item.location_lost}</Text>
                 )}
-                <Text style={styles.itemDate}>
-                  {new Date(item.created_at).toLocaleDateString()}
-                </Text>
+                <View style={styles.itemFooter}>
+                  <Text style={styles.itemDate}>
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </Text>
+                  {/* Mark as Found button - only for lost items */}
+                  {item.type === 'lost' && (
+                    <TouchableOpacity
+                      style={[styles.statusButton, styles.foundButton]}
+                      onPress={() => handleMarkAsFound(item)}
+                      disabled={updatingItem === item.id}
+                    >
+                      <Text style={styles.statusButtonText}>
+                        {updatingItem === item.id ? '...' : '✓ Found'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             </View>
           ))
@@ -479,6 +555,25 @@ const createStyles = (colors) => StyleSheet.create({
   itemDate: {
     fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
     color: colors.textSecondary,
+  },
+  itemFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  statusButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  foundButton: {
+    backgroundColor: '#10B981', // Green
+  },
+  statusButtonText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',

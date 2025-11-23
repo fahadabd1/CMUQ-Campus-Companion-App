@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,19 +7,26 @@ import {
   StyleSheet,
   Alert,
   Platform,
-  TextInput
+  TextInput,
+  RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
+import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import db from '../database/database';
 import { parseICSFile, importSchedule } from '../utils/icsParser';
+import { syncEventsToLocal } from '../services/api';
 import { Colors, Spacing, Typography, Components, Container } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const ScheduleScreen = () => {
   const [schedule, setSchedule] = useState({});
+  const [starredEvents, setStarredEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAddForm, setShowAddForm] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [newClass, setNewClass] = useState({
     course_name: '',
     start_time: '',
@@ -30,12 +37,56 @@ const ScheduleScreen = () => {
   });
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  // Get dates for the current week
+  const getWeekDates = () => {
+    const today = new Date();
+    const currentDay = today.getDay();
+    const dates = [];
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - currentDay + i);
+      dates.push(date);
+    }
+    return dates;
+  };
+
+  const weekDates = getWeekDates();
+
   useEffect(() => {
     loadSchedule();
+    loadStarredEvents();
+  }, []);
+
+  // Reload starred events when screen gains focus (e.g., after starring an event)
+  useFocusEffect(
+    useCallback(() => {
+      loadStarredEvents();
+    }, [])
+  );
+
+  // Update selected date when day changes
+  useEffect(() => {
+    setSelectedDate(weekDates[selectedDay]);
+  }, [selectedDay]);
+
+  // Pull-to-refresh handler
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Sync events from API to local database
+      await syncEventsToLocal(db);
+    } catch (error) {
+      console.log('Could not sync events from API');
+    }
+    loadSchedule();
+    loadStarredEvents();
+    setRefreshing(false);
   }, []);
 
   const loadSchedule = () => {
@@ -58,6 +109,30 @@ const ScheduleScreen = () => {
       console.error('Error loading schedule:', error);
     }
   };
+
+  // Load starred events from favorite_events joined with events
+  const loadStarredEvents = () => {
+    try {
+      const result = db.getAllSync(
+        `SELECT e.* FROM events e
+         INNER JOIN favorite_events f ON e.id = f.event_id
+         ORDER BY e.start_time ASC`
+      );
+      setStarredEvents(result);
+    } catch (error) {
+      console.error('Error loading starred events:', error);
+    }
+  };
+
+  // Get starred events for the selected day of week (same logic as classes)
+  const getEventsForDay = (dayOfWeek) => {
+    return starredEvents.filter(event => {
+      const eventDate = new Date(event.start_time);
+      return eventDate.getDay() === dayOfWeek;
+    });
+  };
+
+  const eventsForSelectedDay = getEventsForDay(selectedDay);
 
   const handleImportICS = async () => {
     try {
@@ -118,6 +193,22 @@ const ScheduleScreen = () => {
     }
   };
 
+  const handleEventPress = (event) => {
+    router.push({
+      pathname: '/event-details',
+      params: {
+        id: event.id,
+        title: event.title,
+        description: event.description || '',
+        category: event.category,
+        location: event.location,
+        start_time: event.start_time,
+        end_time: event.end_time || '',
+        link: event.link || '',
+      },
+    });
+  };
+
   const formatTime = (timeStr) => {
     if (!timeStr) return '';
 
@@ -170,7 +261,20 @@ const ScheduleScreen = () => {
     return timeStr;
   };
 
+  const formatDateHeader = (date) => {
+    if (!date) return '';
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const styles = createStyles(colors);
+
+  // Check if there are any items (classes or events) for the selected day
+  const hasClasses = schedule[selectedDay] && schedule[selectedDay].length > 0;
+  const hasEvents = eventsForSelectedDay.length > 0;
+  const hasItems = hasClasses || hasEvents;
 
   if (showAddForm) {
     return (
@@ -283,6 +387,12 @@ const ScheduleScreen = () => {
               onPress={() => setSelectedDay(index)}
             >
               <Text style={[
+                styles.dayButtonDate,
+                selectedDay === index && styles.dayButtonDateActive
+              ]}>
+                {weekDates[index]?.getDate()}
+              </Text>
+              <Text style={[
                 styles.dayButtonText,
                 selectedDay === index && styles.dayButtonTextActive
               ]}>
@@ -293,32 +403,81 @@ const ScheduleScreen = () => {
         </ScrollView>
       </View>
 
-      <ScrollView style={styles.scheduleList} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.dayTitle}>{days[selectedDay]}</Text>
+      <ScrollView
+        style={styles.scheduleList}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <Text style={styles.dayTitle}>
+          {days[selectedDay]}, {formatDateHeader(selectedDate)}
+        </Text>
 
-        {(!schedule[selectedDay] || schedule[selectedDay].length === 0) ? (
+        {!hasItems ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No classes scheduled</Text>
+            <Text style={styles.emptyText}>No classes or events scheduled</Text>
+            <Text style={styles.emptySubtext}>Star events to see them here!</Text>
             <TouchableOpacity style={styles.addClassButton} onPress={() => setShowAddForm(true)}>
               <Text style={styles.addClassButtonText}>Add a class</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          schedule[selectedDay].map((item) => (
-            <View key={item.id} style={styles.classCard}>
-              <View style={[styles.classIndicator, { backgroundColor: item.color || '#3B82F6' }]} />
-              <View style={styles.classContent}>
-                <Text style={styles.classTime}>
-                  {formatTime(item.start_time)} - {formatTime(item.end_time)}
-                </Text>
-                <Text style={styles.className}>{item.course_name}</Text>
-                <Text style={styles.classLocation}>📍 {item.location}</Text>
-                {item.instructor && (
-                  <Text style={styles.classInstructor}>👤 {item.instructor}</Text>
-                )}
+          <>
+            {/* Starred Events Section */}
+            {hasEvents && (
+              <View style={styles.eventsSection}>
+                <Text style={styles.sectionTitle}>Starred Events</Text>
+                {eventsForSelectedDay.map((event) => (
+                  <TouchableOpacity
+                    key={`event-${event.id}`}
+                    style={styles.eventCard}
+                    onPress={() => handleEventPress(event)}
+                  >
+                    <View style={styles.eventIndicator} />
+                    <View style={styles.classContent}>
+                      <View style={styles.eventHeader}>
+                        <Text style={styles.classTime}>
+                          {formatTime(event.start_time)}
+                          {event.end_time && ` - ${formatTime(event.end_time)}`}
+                        </Text>
+                        <Text style={styles.starBadge}>★</Text>
+                      </View>
+                      <Text style={styles.className}>{event.title}</Text>
+                      {event.location && (
+                        <Text style={styles.classLocation}>📍 {event.location}</Text>
+                      )}
+                      {event.category && (
+                        <Text style={styles.eventCategory}>{event.category}</Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
               </View>
-            </View>
-          ))
+            )}
+
+            {/* Classes Section */}
+            {hasClasses && (
+              <View style={styles.classesSection}>
+                {hasEvents && <Text style={styles.sectionTitle}>Classes</Text>}
+                {schedule[selectedDay].map((item) => (
+                  <View key={item.id} style={styles.classCard}>
+                    <View style={[styles.classIndicator, { backgroundColor: item.color || '#3B82F6' }]} />
+                    <View style={styles.classContent}>
+                      <Text style={styles.classTime}>
+                        {formatTime(item.start_time)} - {formatTime(item.end_time)}
+                      </Text>
+                      <Text style={styles.className}>{item.course_name}</Text>
+                      <Text style={styles.classLocation}>📍 {item.location}</Text>
+                      {item.instructor && (
+                        <Text style={styles.classInstructor}>👤 {item.instructor}</Text>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
       </View>
@@ -387,16 +546,27 @@ const createStyles = (colors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   dayButton: {
-    paddingHorizontal: Spacing.lg, // DESIGN.md: 20px
-    paddingVertical: 10,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
     marginHorizontal: 5,
-    borderRadius: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    minWidth: 50,
   },
   dayButtonActive: {
     backgroundColor: colors.primary, // DESIGN.md: Indigo
   },
+  dayButtonDate: {
+    fontSize: Typography.body.fontSize,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  dayButtonDateActive: {
+    color: 'white',
+  },
   dayButtonText: {
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
     color: colors.textSecondary,
     fontWeight: '500',
   },
@@ -408,9 +578,23 @@ const createStyles = (colors) => StyleSheet.create({
     padding: Spacing.md,
   },
   dayTitle: {
-    fontSize: Typography.h1.fontSize, // DESIGN.md: 24px
-    fontWeight: Typography.h1.fontWeight,
+    fontSize: Typography.h2.fontSize,
+    fontWeight: Typography.h2.fontWeight,
     color: colors.text,
+    marginBottom: Spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: Typography.small.fontSize,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  eventsSection: {
+    marginBottom: Spacing.lg,
+  },
+  classesSection: {
     marginBottom: Spacing.lg,
   },
   classCard: {
@@ -425,12 +609,39 @@ const createStyles = (colors) => StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
+  eventCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.background,
+    borderRadius: Components.card.borderRadius,
+    marginBottom: 10,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F59E0B', // Gold border for starred events
+  },
   classIndicator: {
     width: 4, // DESIGN.md: Duration bar 2px (using 4px for visibility)
+  },
+  eventIndicator: {
+    width: 4,
+    backgroundColor: '#F59E0B', // Gold for starred events
   },
   classContent: {
     flex: 1,
     padding: Spacing.md, // DESIGN.md: 16px
+  },
+  eventHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  starBadge: {
+    fontSize: 16,
+    color: '#F59E0B',
   },
   classTime: {
     fontSize: Typography.caption.fontSize, // DESIGN.md: 12px
@@ -452,12 +663,23 @@ const createStyles = (colors) => StyleSheet.create({
     fontSize: Typography.small.fontSize, // DESIGN.md: 14px
     color: colors.textSecondary,
   },
+  eventCategory: {
+    fontSize: Typography.caption.fontSize,
+    color: colors.primary,
+    fontWeight: '500',
+    marginTop: 4,
+  },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 40,
   },
   emptyText: {
     fontSize: Typography.body.fontSize, // DESIGN.md: 16px
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    fontSize: Typography.small.fontSize,
     color: colors.textSecondary,
     marginBottom: Spacing.lg,
   },

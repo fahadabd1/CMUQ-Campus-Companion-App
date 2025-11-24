@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, Image, Keyboard, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { ROOM_DATABASE, FLOOR_NAMES, CATEGORY_DATABASE } from '../utils/roomDatabase';
-import { Colors, Spacing, Typography, Components, RoomStates } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Dimensions, Image, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors, Components, RoomStates, Spacing, Typography } from '../../constants/theme';
+import { CATEGORY_DATABASE, FLOOR_NAMES, ROOM_DATABASE } from '../utils/roomDatabase';
 
 const { width } = Dimensions.get('window');
 

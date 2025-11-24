@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, ScrollView, Image, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, Image, Keyboard, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ROOM_DATABASE, FLOOR_NAMES, CATEGORY_DATABASE } from '../utils/roomDatabase';
-import { Colors, Spacing, Typography, Components, RoomStates, Container } from '../../constants/theme';
+import { Colors, Spacing, Typography, Components, RoomStates } from '../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const { width } = Dimensions.get('window');
@@ -13,32 +13,6 @@ const FLOOR_IMAGES = [
   require('../../assets/pdf/SecondFloor.png'),
   require('../../assets/pdf/ThirdFloor.png'),
 ];
-
-// @param room: string
-function get_room_type(room) {
-  let r = Number.parseInt(room);
-  let floor;
-  if (room[0] === '1') {floor = FLOOR_NAMES[0]};
-  if (room[0] === '2') {floor = FLOOR_NAMES[1]};
-  if (room[0] === '3') {floor = FLOOR_NAMES[2]};
-
-  for (let category in CATEGORY_DATABASE) {
-    if (r in CATEGORY_DATABASE[floor][category]) {
-      return category;
-    }
-  }
-  return null;
-}
-
-// category can only be one of: ['staff', 'study-rooms', 'restrooms', 'class-rooms', 'facility']
-// floor must be an element of FLOOR_NAMES
-function get_rooms_of_type(category, floor) {
-  let string_rooms = CATEGORY_DATABASE[floor][category].copy();
-  string_rooms.map((value, index, array) => {
-    return value.toString();
-  });
-  return string_rooms;
-}
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
@@ -58,16 +32,18 @@ const MapScreen = () => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
-  // Get rooms for selected category (First Floor only)
+  // Get rooms for selected category (all floors)
   const getCategoryRooms = () => {
-    if (selectedCategory === 'all' || currentFloor !== 0) return [];
-    const categoryData = CATEGORY_DATABASE['First Floor']?.[selectedCategory];
+    if (selectedCategory === 'all') return [];
+
+    const floorName = FLOOR_NAMES[currentFloor];
+    const categoryData = CATEGORY_DATABASE[floorName]?.[selectedCategory];
     if (!categoryData?.rooms) return [];
 
     return categoryData.rooms
       .map(roomNum => {
         const roomData = ROOM_DATABASE[roomNum.toString()];
-        if (roomData && roomData.image === 0) {
+        if (roomData && roomData.image === currentFloor) {
           return { ...roomData, roomNumber: roomNum.toString() };
         }
         return null;
@@ -99,7 +75,7 @@ const MapScreen = () => {
 
     const room = ROOM_DATABASE[roomNumber];
     if (room) {
-      Keyboard.dismiss(); // Hide keyboard for better map visibility
+      Keyboard.dismiss();
       setFoundRoom(room);
       setCurrentFloor(room.image);
     } else {
@@ -120,6 +96,13 @@ const MapScreen = () => {
         ]
       );
     }
+  };
+
+  const handleFloorChange = (floorIndex) => {
+    if (floorIndex === currentFloor) return;
+    setFoundRoom(null);
+    setSelectedCategory('all'); // Reset category filter when switching floors
+    setCurrentFloor(floorIndex);
   };
 
   const styles = createStyles(colors);
@@ -152,57 +135,41 @@ const MapScreen = () => {
 
       {foundRoom && <View style={styles.info}><Text style={styles.infoText}>📍 Room {searchText} - {foundRoom.floor}</Text></View>}
 
-      {/* Category Filter - First Floor Only */}
-      {currentFloor === 0 && (
-        <View style={styles.categoryContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
-            {CATEGORIES.map((cat) => (
-              <TouchableOpacity
-                key={cat.key}
-                style={[styles.categoryBtn, selectedCategory === cat.key && styles.categoryBtnActive]}
-                onPress={() => setSelectedCategory(cat.key)}
-              >
-                <Text style={[styles.categoryText, selectedCategory === cat.key && styles.categoryTextActive]}>
-                  {cat.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
+      {/* Category Filter - All Floors */}
+      <View style={styles.categoryContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat.key}
+              style={[styles.categoryBtn, selectedCategory === cat.key && styles.categoryBtnActive]}
+              onPress={() => setSelectedCategory(cat.key)}
+            >
+              <Text style={[styles.categoryText, selectedCategory === cat.key && styles.categoryTextActive]}>
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       {/* Category info banner */}
-      {selectedCategory !== 'all' && currentFloor === 0 && categoryRooms.length > 0 && (
+      {selectedCategory !== 'all' && categoryRooms.length > 0 && (
         <View style={styles.categoryInfo}>
           <Text style={styles.categoryInfoText}>
-            🏷️ {categoryRooms.length} {CATEGORIES.find(c => c.key === selectedCategory)?.label} on First Floor
+            🏷️ {categoryRooms.length} {CATEGORIES.find(c => c.key === selectedCategory)?.label} on {FLOOR_NAMES[currentFloor]}
           </Text>
         </View>
       )}
 
       <View style={styles.tabs}>
         {FLOOR_NAMES.map((name, i) => (
-          <TouchableOpacity key={i} style={[styles.tab, currentFloor === i && styles.tabActive]} onPress={() => setCurrentFloor(i)}>
+          <TouchableOpacity key={i} style={[styles.tab, currentFloor === i && styles.tabActive]} onPress={() => handleFloorChange(i)}>
             <Text style={[styles.tabText, currentFloor === i && styles.tabTextActive]}>{name}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Zoom hint */}
-      <View style={styles.zoomHint}>
-        <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
-      </View>
-
-      <ScrollView
-        style={styles.map}
-        contentContainerStyle={styles.mapScrollContent}
-        maximumZoomScale={4}
-        minimumZoomScale={1}
-        bouncesZoom={true}
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        centerContent={true}
-      >
+      <View style={styles.map}>
         <View style={styles.mapWrapper}>
           <Image source={FLOOR_IMAGES[currentFloor]} style={styles.img} resizeMode="contain" />
           {/* Category markers (blue) */}
@@ -221,7 +188,7 @@ const MapScreen = () => {
             </View>
           )}
         </View>
-      </ScrollView>
+      </View>
     </View>
     </SafeAreaView>
   );
@@ -234,28 +201,25 @@ const createStyles = (colors) => StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: colors.surface // DESIGN.md: Gray-50
-  },
-  scrollContent: {
-    paddingBottom: Container.bottomNavClearance, // DESIGN.md: 80px clearance for bottom nav
+    backgroundColor: colors.surface
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.md, // DESIGN.md: 16px
+    padding: Spacing.md,
     paddingTop: 40,
     backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.border
   },
   backText: {
-    color: colors.primary, // DESIGN.md: Indigo
+    color: colors.primary,
     fontSize: Typography.body.fontSize,
     fontWeight: '600'
   },
   title: {
-    fontSize: Typography.h2.fontSize, // DESIGN.md: 20px
+    fontSize: Typography.h2.fontSize,
     fontWeight: Typography.h2.fontWeight,
     color: colors.text
   },
@@ -270,19 +234,19 @@ const createStyles = (colors) => StyleSheet.create({
   input: {
     flex: 1,
     backgroundColor: colors.background,
-    borderRadius: Components.input.borderRadius, // DESIGN.md: 6px
-    paddingHorizontal: Components.input.paddingHorizontal, // DESIGN.md: 12px
+    borderRadius: Components.input.borderRadius,
+    paddingHorizontal: Components.input.paddingHorizontal,
     paddingVertical: 10,
-    fontSize: Components.input.fontSize, // DESIGN.md: 16px (prevents zoom on iOS)
+    fontSize: Components.input.fontSize,
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.text
   },
   btn: {
-    backgroundColor: colors.primary, // DESIGN.md: Indigo
+    backgroundColor: colors.primary,
     paddingHorizontal: Spacing.lg,
     paddingVertical: 10,
-    borderRadius: Components.button.borderRadius, // DESIGN.md: 6px
+    borderRadius: Components.button.borderRadius,
     justifyContent: 'center'
   },
   btnText: {
@@ -291,13 +255,13 @@ const createStyles = (colors) => StyleSheet.create({
     fontWeight: '600'
   },
   info: {
-    backgroundColor: colors.success, // DESIGN.md: Green
+    backgroundColor: colors.success,
     padding: 12,
     alignItems: 'center'
   },
   infoText: {
     color: 'white',
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    fontSize: Typography.small.fontSize,
     fontWeight: '600'
   },
   tabs: {
@@ -314,38 +278,23 @@ const createStyles = (colors) => StyleSheet.create({
     borderBottomColor: 'transparent'
   },
   tabActive: {
-    borderBottomColor: colors.primary, // DESIGN.md: Indigo
+    borderBottomColor: colors.primary,
     backgroundColor: colors.surface
   },
   tabText: {
-    fontSize: Typography.small.fontSize, // DESIGN.md: 14px
+    fontSize: Typography.small.fontSize,
     color: colors.textSecondary,
     fontWeight: '500'
   },
   tabTextActive: {
-    color: colors.primary, // DESIGN.md: Indigo
+    color: colors.primary,
     fontWeight: '700'
-  },
-  zoomHint: {
-    backgroundColor: colors.background,
-    paddingVertical: 6,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  zoomHintText: {
-    fontSize: Typography.caption.fontSize,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
   },
   map: {
     flex: 1,
-    backgroundColor: colors.border
-  },
-  mapScrollContent: {
-    flexGrow: 1,
+    backgroundColor: colors.border,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   mapWrapper: {
     width: width,
@@ -371,9 +320,8 @@ const createStyles = (colors) => StyleSheet.create({
     borderRadius: 15,
     backgroundColor: 'rgba(239, 68, 68, 0.5)',
     borderWidth: 3,
-    borderColor: RoomStates.occupied // DESIGN.md: Red for occupied rooms
+    borderColor: RoomStates.occupied
   },
-  // Category Filter Styles
   categoryContainer: {
     backgroundColor: colors.background,
     borderBottomWidth: 1,
@@ -430,7 +378,7 @@ const createStyles = (colors) => StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'rgba(59, 130, 246, 0.5)',
     borderWidth: 2,
-    borderColor: '#3B82F6', // Blue for category markers
+    borderColor: '#3B82F6',
   },
 });
 

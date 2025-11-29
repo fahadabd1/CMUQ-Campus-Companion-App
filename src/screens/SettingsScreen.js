@@ -256,7 +256,7 @@ const SettingsScreen = () => {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Made with ♥ for Students</Text>
-        <Text style={styles.footerSubtext}>Sprint 4 - Functional Prototype</Text>
+        <Text style={styles.footerSubtext}>Final Prototype</Text>
       </View>
       </ScrollView>
     </SafeAreaView>
